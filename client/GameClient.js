@@ -1,11 +1,17 @@
 import nengi from 'nengi'
 import nengiConfig from '../common/nengiConfig'
 import Simulator from './Simulator'
+import { EventEmitter } from 'events';
+
 
 class GameClient {
     constructor() {
         this.client = new nengi.Client(nengiConfig, 100) 
-        this.simulator = new Simulator(this.client)
+
+        
+        this.happy = new EventEmitter()
+        this.simulator = new Simulator(this.client, this.happy)
+
 
         this.client.onConnect(res => {
             console.log('onConnect response:', res)
@@ -23,28 +29,35 @@ class GameClient {
 
         network.entities.forEach(snapshot => {
             snapshot.createEntities.forEach(entity => {
-                this.simulator.createEntity(entity)
+                this.happy.emit(`create::${ entity.protocol.name }`, entity)
+                //this.simulator.createEntity(entity)
             })
     
             snapshot.updateEntities.forEach(update => {
-                this.simulator.updateEntity(update)
+                this.happy.emit(`update`, update)
+               // this.simulator.updateEntity(update)
             })
     
             snapshot.deleteEntities.forEach(id => {
-                this.simulator.deleteEntity(id)
+                this.happy.emit(`delete`, id)
+                //this.simulator.deleteEntity(id)
             })
         })
 
         network.predictionErrors.forEach(predictionErrorFrame => {
-            this.simulator.processPredictionError(predictionErrorFrame)
+            this.happy.emit(`predictionErrorFrame`, predictionErrorFrame)
+            //this.simulator.processPredictionError(predictionErrorFrame)
         })
 
         network.messages.forEach(message => {
-            this.simulator.processMessage(message)
+            //this.happy.emit(`message`, message)
+            this.happy.emit(`message::${ message.protocol.name }`, message)
+            //this.simulator.processMessage(message)
         })
 
         network.localMessages.forEach(localMessage => {
-            this.simulator.processLocalMessage(localMessage)
+            this.happy.emit(`message::${ localMessage.protocol.name }`, localMessage)
+            //this.simulator.processLocalMessage(localMessage)
         })
 
         this.simulator.update(delta)

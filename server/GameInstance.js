@@ -8,10 +8,15 @@ import Obstacle from '../common/entity/Obstacle'
 
 import followPath from './followPath'
 import damagePlayer from './damagePlayer'
+import { EventEmitter } from 'events';
+
+
 
 
 class GameInstance {
     constructor() {
+
+        this.happy = new EventEmitter()
         this.players = new Map()
         this.instance = new nengi.Instance(nengiConfig, { port: 8079 })
         this.instance.onConnect((client, clientData, callback) => {
@@ -74,6 +79,40 @@ class GameInstance {
         obstacles.set(obsB.nid, obsB)
 
         this.obstacles = obstacles
+
+
+
+        this.happy.on('command::MoveCommand', (command, client, tick) => {
+            const rawEntity = client.rawEntity
+            const smoothEntity = client.smoothEntity
+
+            rawEntity.processMove(command, this.obstacles)
+            client.positions.push({
+                x: rawEntity.x,
+                y: rawEntity.y,
+                rotation: rawEntity.rotation
+            })
+            rawEntity.weaponSystem.update(command.delta)
+        })
+
+        this.happy.on('command::FireCommand', (command, client, tick) => {
+            const rawEntity = client.rawEntity
+            const smoothEntity = client.smoothEntity
+
+            if (rawEntity.fire()) {            
+                const timeAgo = client.latency + 100
+
+                this.lagCompensatedHitscanCheck(rawEntity.x, rawEntity.y, command.x, command.y, timeAgo, (victim) => {
+                    if (victim.nid !== rawEntity.nid && victim.nid !== smoothEntity.nid) {
+                        damagePlayer(victim)
+                    }
+                })
+
+                this.instance.addLocalMessage(new WeaponFired(smoothEntity.nid, smoothEntity.x, smoothEntity.y, command.x, command.y))
+            }
+        })
+
+
     }
 
     lagCompensatedHitscanCheck(x1, y1, x2, y2, timeAgo, onHit) {
@@ -118,33 +157,7 @@ class GameInstance {
 
             for (let i = 0; i < cmd.commands.length; i++) {
                 const command = cmd.commands[i]
-                const rawEntity = client.rawEntity
-                const smoothEntity = client.smoothEntity
-
-                if (command.protocol.name === 'MoveCommand') {
-                    rawEntity.processMove(command, this.obstacles)
-                    client.positions.push({
-                        x: rawEntity.x,
-                        y: rawEntity.y,
-                        rotation: rawEntity.rotation
-                    })
-                    rawEntity.weaponSystem.update(command.delta)
-                }
-
-                if (command.protocol.name === 'FireCommand') {
-
-                    if (rawEntity.fire()) {            
-                        const timeAgo = client.latency + 100
-
-                        this.lagCompensatedHitscanCheck(rawEntity.x, rawEntity.y, command.x, command.y, timeAgo, (victim) => {
-                            if (victim.nid !== rawEntity.nid && victim.nid !== smoothEntity.nid) {
-                                damagePlayer(victim)
-                            }
-                        })
-
-                        this.instance.addLocalMessage(new WeaponFired(smoothEntity.nid, smoothEntity.x, smoothEntity.y, command.x, command.y))
-                    }
-                }
+                this.happy.emit(`command::${ command.protocol.name}`, command, client, tick)
             }
         } 
 
@@ -165,3 +178,4 @@ class GameInstance {
 }
 
 export default GameInstance
+

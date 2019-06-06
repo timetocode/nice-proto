@@ -17,7 +17,7 @@ const shouldIgnore = (myId, update) => {
 }
 
 class Simulator {
-    constructor(client) {
+    constructor(client, happy) {
         this.client = client
         this.renderer = new PIXIRenderer()
         this.input = new InputSystem()
@@ -30,12 +30,8 @@ class Simulator {
 
         this.myRawEntity = null
         this.mySmoothEntity = null
-    }
 
-    createEntity(entity) {
-        console.log('create entity', entity)
-
-        if (entity.protocol.name === 'PlayerCharacter') {
+        happy.on('create::PlayerCharacter', entity => {
             let newEntity = new PlayerCharacter()
             Object.assign(newEntity, entity)
             this.entities.set(newEntity.nid, newEntity)
@@ -53,76 +49,99 @@ class Simulator {
                 this.mySmoothEntity = newEntity
                 this.renderer.entities.get(entity.nid).hide()
             }
-        }
+        })
 
-
-        if (entity.protocol.name === 'Obstacle') {
+        happy.on('create::Obstacle', entity => {
             const obs = new Obstacle(entity.x, entity.y, entity.width, entity.height)
             this.obstacles.set(entity.nid, obs)
             this.renderer.createEntity(entity)
-        }
-    }
+        })
 
-    updateEntity(update) {
-        if (!shouldIgnore(this.myRawId, update)) {
-            //console.log('update', update)
-            const entity = this.entities.get(update.nid)
-            entity[update.prop] = update.value
-            this.renderer.updateEntity(update)
-        }
-    }
+        happy.on('update', update => {
+            if (!shouldIgnore(this.myRawId, update)) {
+                //console.log('update', update)
+                const entity = this.entities.get(update.nid)
+                entity[update.prop] = update.value
+                this.renderer.updateEntity(update)
+            }
+        })
 
-    deleteEntity(id) {
-        this.renderer.deleteEntity(id)
-        this.entities.delete(id)
-    }
+        happy.on('delete', id => {
+            this.renderer.deleteEntity(id)
+            this.entities.delete(id)
+        })
 
-    processMessage(message) {
-        if (message.protocol.name === 'Identity') {
+        happy.on('message::Identity', message => {
             this.myRawId = message.rawId
             this.mySmoothId = message.smoothId
             console.log('identified as', message)
-        }
-    }
+        })
 
-    processLocalMessage(message) {
-        if (message.protocol.name === 'WeaponFired') {
+        happy.on('message::WeaponFired', message => {
             //console.log('server says a weapon was fired', message)
             if (message.sourceId === this.mySmoothEntity.nid) {
                 return
             }
             this.renderer.drawHitscan(message.x, message.y, message.tx, message.ty, 0xff0000)
+        })
+
+        happy.on('predictionErrorFrame', predictionErrorFrame => {
+            predictionErrorFrame.entities.forEach(predictionErrorEntity => {
+                // get our clientside entity
+                const entity = this.myRawEntity//localEntity.get(predictionErrorEntity.id)
+    
+                // correct any prediction errors with server values...
+                predictionErrorEntity.errors.forEach(predictionError => {
+                    //console.log('prediciton error', predictionError)
+                    entity[predictionError.prop] = predictionError.actualValue
+                })
+    
+                // and then re-apply any commands issued since the frame that had the prediction error
+                const commandSets = this.client.getUnconfirmedCommands() // client knows which commands need redone
+                commandSets.forEach((commandSet, clientTick) => {
+                    commandSet.forEach(command => {
+                        // example assumes 'PlayerInput' is the command we are predicting
+                        if (command.protocol.name === 'MoveCommand') {
+                            entity.processMove(command)
+                            const prediction = {
+                                nid: entity.nid,
+                                x: entity.x,
+                                y: entity.y
+                            }
+                            this.client.addCustomPrediction(clientTick, prediction, ['x', 'y']) // overwrite
+                        }
+                    })
+                })
+            })
+        })
+    }
+
+    createEntity(entity) {
+
+    }
+
+    updateEntity(update) {
+
+    }
+
+    deleteEntity(id) {
+    
+    }
+
+    processMessage(message) {
+        if (message.protocol.name === 'Identity') {
+
+        }
+    }
+
+    processLocalMessage(message) {
+        if (message.protocol.name === 'WeaponFired') {
+
         }
     }
 
     processPredictionError(predictionErrorFrame) {
-        predictionErrorFrame.entities.forEach(predictionErrorEntity => {
-            // get our clientside entity
-            const entity = this.myRawEntity//localEntity.get(predictionErrorEntity.id)
 
-            // correct any prediction errors with server values...
-            predictionErrorEntity.errors.forEach(predictionError => {
-                //console.log('prediciton error', predictionError)
-                entity[predictionError.prop] = predictionError.actualValue
-            })
-
-            // and then re-apply any commands issued since the frame that had the prediction error
-            const commandSets = this.client.getUnconfirmedCommands() // client knows which commands need redone
-            commandSets.forEach((commandSet, clientTick) => {
-                commandSet.forEach(command => {
-                    // example assumes 'PlayerInput' is the command we are predicting
-                    if (command.protocol.name === 'MoveCommand') {
-                        entity.processMove(command)
-                        const prediction = {
-                            nid: entity.nid,
-                            x: entity.x,
-                            y: entity.y
-                        }
-                        this.client.addCustomPrediction(clientTick, prediction, ['x', 'y']) // overwrite
-                    }
-                })
-            })
-        })
     }
 
     simulateShot(x, y, tx, ty) {
