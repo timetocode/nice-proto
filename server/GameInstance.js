@@ -16,9 +16,9 @@ import { EventEmitter } from 'events';
 class GameInstance {
     constructor() {
 
-        this.happy = new EventEmitter()
         this.players = new Map()
         this.instance = new nengi.Instance(nengiConfig, { port: 8079 })
+        this.instance.events = new EventEmitter()
         this.instance.onConnect((client, clientData, callback) => {
 
             // create a entity for this client
@@ -82,7 +82,7 @@ class GameInstance {
 
 
 
-        this.happy.on('command::MoveCommand', (command, client, tick) => {
+        this.instance.events.on('command::MoveCommand', (command, client, tick) => {
             const rawEntity = client.rawEntity
             const smoothEntity = client.smoothEntity
 
@@ -95,7 +95,7 @@ class GameInstance {
             rawEntity.weaponSystem.update(command.delta)
         })
 
-        this.happy.on('command::FireCommand', (command, client, tick) => {
+        this.instance.events.on('command::FireCommand', (command, client, tick) => {
             const rawEntity = client.rawEntity
             const smoothEntity = client.smoothEntity
 
@@ -157,7 +157,7 @@ class GameInstance {
 
             for (let i = 0; i < cmd.commands.length; i++) {
                 const command = cmd.commands[i]
-                this.happy.emit(`command::${ command.protocol.name}`, command, client, tick)
+                this.instance.events.emit(`command::${ command.protocol.name}`, command, client, tick)
             }
         } 
 

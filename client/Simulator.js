@@ -17,7 +17,7 @@ const shouldIgnore = (myId, update) => {
 }
 
 class Simulator {
-    constructor(client, happy) {
+    constructor(client) {
         this.client = client
         this.renderer = new PIXIRenderer()
         this.input = new InputSystem()
@@ -31,7 +31,7 @@ class Simulator {
         this.myRawEntity = null
         this.mySmoothEntity = null
 
-        happy.on('create::PlayerCharacter', entity => {
+        client.events.on('create::PlayerCharacter', entity => {
             let newEntity = new PlayerCharacter()
             Object.assign(newEntity, entity)
             this.entities.set(newEntity.nid, newEntity)
@@ -51,13 +51,13 @@ class Simulator {
             }
         })
 
-        happy.on('create::Obstacle', entity => {
+        client.events.on('create::Obstacle', entity => {
             const obs = new Obstacle(entity.x, entity.y, entity.width, entity.height)
             this.obstacles.set(entity.nid, obs)
             this.renderer.createEntity(entity)
         })
 
-        happy.on('update', update => {
+        client.events.on('update', update => {
             if (!shouldIgnore(this.myRawId, update)) {
                 //console.log('update', update)
                 const entity = this.entities.get(update.nid)
@@ -66,18 +66,18 @@ class Simulator {
             }
         })
 
-        happy.on('delete', id => {
+        client.events.on('delete', id => {
             this.renderer.deleteEntity(id)
             this.entities.delete(id)
         })
 
-        happy.on('message::Identity', message => {
+        client.events.on('message::Identity', message => {
             this.myRawId = message.rawId
             this.mySmoothId = message.smoothId
             console.log('identified as', message)
         })
 
-        happy.on('message::WeaponFired', message => {
+        client.events.on('message::WeaponFired', message => {
             //console.log('server says a weapon was fired', message)
             if (message.sourceId === this.mySmoothEntity.nid) {
                 return
@@ -85,7 +85,7 @@ class Simulator {
             this.renderer.drawHitscan(message.x, message.y, message.tx, message.ty, 0xff0000)
         })
 
-        happy.on('predictionErrorFrame', predictionErrorFrame => {
+        client.events.on('predictionErrorFrame', predictionErrorFrame => {
             predictionErrorFrame.entities.forEach(predictionErrorEntity => {
                 // get our clientside entity
                 const entity = this.myRawEntity//localEntity.get(predictionErrorEntity.id)
@@ -114,34 +114,6 @@ class Simulator {
                 })
             })
         })
-    }
-
-    createEntity(entity) {
-
-    }
-
-    updateEntity(update) {
-
-    }
-
-    deleteEntity(id) {
-    
-    }
-
-    processMessage(message) {
-        if (message.protocol.name === 'Identity') {
-
-        }
-    }
-
-    processLocalMessage(message) {
-        if (message.protocol.name === 'WeaponFired') {
-
-        }
-    }
-
-    processPredictionError(predictionErrorFrame) {
-
     }
 
     simulateShot(x, y, tx, ty) {
