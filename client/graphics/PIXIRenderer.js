@@ -58,6 +58,7 @@ class PIXIRenderer {
             const clientEntity = new PlayerCharacter(entity)
             this.entities.set(entity.nid, clientEntity)
             this.middleground.addChild(clientEntity)
+            return clientEntity
         }
 
         
@@ -66,6 +67,7 @@ class PIXIRenderer {
             const clientEntity = new Obstacle(entity)
             this.entities.set(entity.nid, clientEntity)
             this.middleground.addChild(clientEntity)
+            return clientEntity
         }
     }
 

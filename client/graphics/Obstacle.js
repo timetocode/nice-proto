@@ -3,6 +3,7 @@ import * as PIXI from 'pixi.js'
 class Obstacle extends PIXI.Container {
     constructor(entity) {
         super()
+        this.nid = entity.nid
         this.x = entity.x
         this.y = entity.y
         this.width = entity.width

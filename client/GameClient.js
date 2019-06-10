@@ -5,7 +5,8 @@ import niceClientExtension  from './niceClientExtension'
 
 class GameClient {
     constructor() {
-        this.client = new nengi.Client(nengiConfig, 100)        
+        this.client = new nengi.Client(nengiConfig, 100)
+        this.client.factory = {}
         niceClientExtension(this.client)// API EXTENSION
         this.simulator = new Simulator(this.client)
 

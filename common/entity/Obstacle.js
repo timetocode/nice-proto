@@ -9,6 +9,10 @@ class Obstacle {
         this.height = h
         this.collider = new SAT.Box(new SAT.Vector(this.x, this.y), this.width, this.height).toPolygon()
     }
+
+    reset() {
+        this.collider = new SAT.Box(new SAT.Vector(this.x, this.y), this.width, this.height).toPolygon()
+    }
 }
 
 Obstacle.protocol = {

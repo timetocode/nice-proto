@@ -5,6 +5,8 @@ import InputSystem from './InputSystem'
 import MoveCommand from '../common/command/MoveCommand'
 import FireCommand from '../common/command/FireCommand'
 
+import reactive from './reactive'
+
 // ignoring certain data from the sever b/c we will be predicting these properties on the client
 const ignoreProps = ['x', 'y', 'rotation']
 const shouldIgnore = (myId, update) => {
@@ -16,13 +18,49 @@ const shouldIgnore = (myId, update) => {
     return false
 }
 
+
+
+const createFactory = ({ obstacles, renderer, context }) => {
+    return {
+        'PlayerCharacter': {
+            create({ data, entity }) {    
+                const cl = renderer.createEntity(entity)
+                if (entity.nid === context.myRawId) {
+                    // console.log('discovered self')
+                    context.myRawEntity = entity
+                    // for debugging purposes turn the entity we control white
+                    renderer.entities.get(entity.nid).body.tint = 0xffffff
+                }
+    
+                if (entity.nid === context.mySmoothId) {
+                    // hide our smooth
+                    context.mySmoothEntity = entity
+                    renderer.entities.get(entity.nid).hide()
+                }
+                return cl
+            },
+            delete(nid) {
+                renderer.deleteEntity(nid)
+            }
+        },
+        'Obstacle': {
+            create({ data, entity }) {
+                entity.reset()
+                obstacles.set(entity.nid, entity)
+                return renderer.createEntity(entity)
+            },
+            delete(nid) {
+                renderer.deleteEntity(nid)
+            }
+        }
+    }
+}
+
 class Simulator {
     constructor(client) {
         this.client = client
         this.renderer = new PIXIRenderer()
         this.input = new InputSystem()
-        this.entities = new Map()
-
         this.obstacles = new Map()
 
         this.myRawId = -1
@@ -30,46 +68,16 @@ class Simulator {
 
         this.myRawEntity = null
         this.mySmoothEntity = null
-
-        client.events.on('create::PlayerCharacter', entity => {
-            let newEntity = new PlayerCharacter()
-            Object.assign(newEntity, entity)
-            this.entities.set(newEntity.nid, newEntity)
-
-            this.renderer.createEntity(entity)
-            if (entity.nid === this.myRawId) {
-                // console.log('discovered self')
-                this.myRawEntity = newEntity
-                // for debugging purposes turn the entity we control white
-                this.renderer.entities.get(entity.nid).body.tint = 0xffffff
-            }
-
-            if (entity.nid === this.mySmoothId) {
-                // hide our smooth
-                this.mySmoothEntity = newEntity
-                this.renderer.entities.get(entity.nid).hide()
-            }
+        
+        client.factory = createFactory({
+            context: this,
+            obstacles: this.obstacles,
+            renderer: this.renderer
         })
 
-        client.events.on('create::Obstacle', entity => {
-            const obs = new Obstacle(entity.x, entity.y, entity.width, entity.height)
-            this.obstacles.set(entity.nid, obs)
-            this.renderer.createEntity(entity)
-        })
-
-        client.events.on('update', update => {
-            if (!shouldIgnore(this.myRawId, update)) {
-                //console.log('update', update)
-                const entity = this.entities.get(update.nid)
-                entity[update.prop] = update.value
-                this.renderer.updateEntity(update)
-            }
-        })
-
-        client.events.on('delete', id => {
-            this.renderer.deleteEntity(id)
-            this.entities.delete(id)
-        })
+        client.entityUpdateFilter = (update) => {
+            return shouldIgnore(this.myRawId, update)
+        }
 
         client.events.on('message::Identity', message => {
             this.myRawId = message.rawId
@@ -89,13 +97,13 @@ class Simulator {
             predictionErrorFrame.entities.forEach(predictionErrorEntity => {
                 // get our clientside entity
                 const entity = this.myRawEntity//localEntity.get(predictionErrorEntity.id)
-    
+
                 // correct any prediction errors with server values...
                 predictionErrorEntity.errors.forEach(predictionError => {
                     //console.log('prediciton error', predictionError)
                     entity[predictionError.prop] = predictionError.actualValue
                 })
-    
+
                 // and then re-apply any commands issued since the frame that had the prediction error
                 const commandSets = this.client.getUnconfirmedCommands() // client knows which commands need redone
                 commandSets.forEach((commandSet, clientTick) => {
@@ -133,9 +141,6 @@ class Simulator {
             rotation = Math.atan2(dy, dx)
         }
 
-
-
-
         this.input.releaseKeys()
 
         if (this.myRawEntity) {
@@ -144,6 +149,7 @@ class Simulator {
             const moveCommand = new MoveCommand(input.w, input.a, input.s, input.d, rotation, delta)
             this.client.addCommand(moveCommand)
             this.myRawEntity.processMove(moveCommand, this.obstacles)
+
 
             const prediction = {
                 nid: this.myRawEntity.nid,
