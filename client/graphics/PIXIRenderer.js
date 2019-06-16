@@ -52,48 +52,6 @@ class PIXIRenderer {
         this.renderer.resize(window.innerWidth, window.innerHeight)
     }
 
-    createEntity(entity) {
-        console.log('renderer create', entity)
-        if (entity.protocol.name === 'PlayerCharacter') {  
-            const clientEntity = new PlayerCharacter(entity)
-            this.entities.set(entity.nid, clientEntity)
-            this.middleground.addChild(clientEntity)
-            return clientEntity
-        }
-
-        
-        if (entity.protocol.name === 'Obstacle') {
-            console.log('creating an OBSTACLE')
-            const clientEntity = new Obstacle(entity)
-            this.entities.set(entity.nid, clientEntity)
-            this.middleground.addChild(clientEntity)
-            return clientEntity
-        }
-    }
-
-    updateEntity(update) {
-        const entity = this.entities.get(update.nid)
-        entity[update.prop] = update.value
-    }
-
-    message(message) {
-
-    }
-
-    deleteEntity(nid) {
-        if (this.entities.get(nid)) {
-            this.foreground.removeChild(this.entities.get(nid))
-            this.middleground.removeChild(this.entities.get(nid))
-            this.entities.delete(nid)
-        }
-    }
-
-    localMessage(message) {
-        if (message.protocol.name === 'WeaponFired') {
-
-        }
-    }
-
     drawHitscan(x, y, targetX, targetY, color) {
         let graphics = new PIXI.Graphics()
         graphics.lineStyle(1, color)
@@ -132,14 +90,6 @@ class PIXIRenderer {
             y: -this.camera.y + mouseY
         }
     }
-
-    move(nid, x, y, rotation) {
-        const entity = this.entities.get(nid)
-        entity.x = x
-        entity.y = y
-        entity.rotation = rotation
-    }
-
 
     update(delta) {
         if (this.myEntity) {

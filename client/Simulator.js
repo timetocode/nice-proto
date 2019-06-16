@@ -5,6 +5,9 @@ import InputSystem from './InputSystem'
 import MoveCommand from '../common/command/MoveCommand'
 import FireCommand from '../common/command/FireCommand'
 
+import ObstacleCud from './Obstacle'
+
+
 import reactive from './reactive'
 
 // ignoring certain data from the sever b/c we will be predicting these properties on the client
@@ -18,43 +21,17 @@ const shouldIgnore = (myId, update) => {
     return false
 }
 
+import PlayerCharacterCRUD from './PlayerCharacterCRUD'
 
 
 const createFactory = ({ obstacles, renderer, context }) => {
     return {
-        'PlayerCharacter': {
-            create({ data, entity }) {    
-                const cl = renderer.createEntity(entity)
-                if (entity.nid === context.myRawId) {
-                    // console.log('discovered self')
-                    context.myRawEntity = entity
-                    // for debugging purposes turn the entity we control white
-                    renderer.entities.get(entity.nid).body.tint = 0xffffff
-                }
-    
-                if (entity.nid === context.mySmoothId) {
-                    // hide our smooth
-                    context.mySmoothEntity = entity
-                    renderer.entities.get(entity.nid).hide()
-                }
-                return cl
-            },
-            delete(nid) {
-                renderer.deleteEntity(nid)
-            }
-        },
-        'Obstacle': {
-            create({ data, entity }) {
-                entity.reset()
-                obstacles.set(entity.nid, entity)
-                return renderer.createEntity(entity)
-            },
-            delete(nid) {
-                renderer.deleteEntity(nid)
-            }
-        }
+        'PlayerCharacter': PlayerCharacterCRUD({ renderer, context }),
+        'Obstacle': ObstacleCud({ renderer, obstacles })
     }
 }
+
+import context from './Context'
 
 class Simulator {
     constructor(client) {
@@ -69,6 +46,11 @@ class Simulator {
         this.myRawEntity = null
         this.mySmoothEntity = null
         
+        context.set('simulator', this)
+        context.set('renderer', this.renderer)
+        context.set('obstacles',this.obstacles)
+
+
         client.factory = createFactory({
             context: this,
             obstacles: this.obstacles,
@@ -158,8 +140,12 @@ class Simulator {
             }
             this.client.addCustomPrediction(this.client.tick, prediction, ['x', 'y'])
 
-            const entity = this.myRawEntity
-            this.renderer.move(entity.nid, entity.x, entity.y, rotation)
+            const entity = this.client.simulation.clientEntities.get(prediction.nid)
+            entity.x = prediction.x
+            entity.y = prediction.y
+            entity.rotation = rotation
+
+            //this.renderer.move(entity.nid, entity.x, entity.y, rotation)
             this.renderer.centerCamera(entity)
 
             // shooting
@@ -177,4 +163,4 @@ class Simulator {
     }
 }
 
-export default Simulator;
+export default Simulator

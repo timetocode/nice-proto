@@ -1,8 +1,5 @@
 import { EventEmitter } from 'events';
 
-
-
-
 export default (client) => {
     client.events = new EventEmitter()
 
@@ -57,7 +54,6 @@ export default (client) => {
         constructors[ep[0]] = ep[1]
     })
 
-
     client.events.on('create', data => {
         const name = data.protocol.name
         const constructor = constructors[name]
@@ -96,8 +92,6 @@ export default (client) => {
         } else {
             console.log('tried to update a  cl_entity that did not exist')
         }
-
-
     })
 
     
