@@ -1,9 +1,4 @@
-//obs
-
-import ObstacleGraphics from './graphics/ObstacleGraphics'
-
-//import { obstacles, renderer } from './Context'
-
+import ObstacleGraphics from '../graphics/ObstacleGraphics'
 
 export default ({ obstacles, renderer }) => {
     return {

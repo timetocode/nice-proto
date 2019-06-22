@@ -60,7 +60,7 @@ export default (client) => {
         if (!constructor) {
             console.log(`No constructor found for ${ name }`)
         }
-        const entity = new constructor()
+        const entity = new constructor(data)
         Object.assign(entity, data)
         client.simulation.entities.set(entity.nid, entity)
         console.log('simulationzz')

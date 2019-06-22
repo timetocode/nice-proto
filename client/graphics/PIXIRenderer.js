@@ -2,11 +2,10 @@ import * as PIXI from 'pixi.js'
 import BackgroundGrid from './BackgroundGrid'
 
 class PIXIRenderer {
-    constructor(input, sounds) {
+    constructor() {
         this.canvas = document.getElementById('main-canvas')
 
         this.masterScale = 1
-        this.myEntity = null
         this.entities = new Map()
 
         this.renderer = PIXI.autoDetectRenderer({
@@ -38,20 +37,12 @@ class PIXIRenderer {
         this.resize()
     }
 
-    drawBulletEnd(alreadyHitPlayer, x, y) {
-        if (alreadyHitPlayer) return
-        var effect = new ImpactEffect(x, y)
-        this.camera.addChild(effect)
-        this.effects.push(effect)
-    }
-
-
     resize() {
         this.renderer.resize(window.innerWidth, window.innerHeight)
     }
 
     drawHitscan(x, y, targetX, targetY, color) {
-        let graphics = new PIXI.Graphics()
+        const graphics = new PIXI.Graphics()
         graphics.lineStyle(1, color)
         graphics.moveTo(x, y)
         graphics.lineTo(targetX, targetY)
@@ -65,7 +56,6 @@ class PIXIRenderer {
             })
         }, 64)
     }
-
  
     centerCamera(entity) {
         this.camera.x = -entity.x + 0.5 * window.innerWidth
@@ -90,10 +80,6 @@ class PIXIRenderer {
     }
 
     update(delta) {
-        if (this.myEntity) {
-            this.centerCameraAndFollowScope(this.myEntity, 0.5, delta)
-        }
-
         this.entities.forEach(entity => {
             entity.update(delta)
         })

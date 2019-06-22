@@ -11,19 +11,20 @@ import damagePlayer from './damagePlayer'
 import { EventEmitter } from 'events';
 
 
-
+import niceInstanceExtension from './niceInstanceExtension'
 
 class GameInstance {
     constructor() {
 
         this.players = new Map()
         this.instance = new nengi.Instance(nengiConfig, { port: 8079 })
-        this.instance.events = new EventEmitter()
-        this.instance.onConnect((client, clientData, callback) => {
+        niceInstanceExtension(this.instance)
+
+        this.instance.events.on('connect', ({ client, data, callback }) => {
 
             // create a entity for this client
             const rawEntity = new PlayerCharacter()
-    
+
             // make the raw entity only visible to this client
             const channel = new nengi.Channel(nengiConfig)
             this.instance.addChannel(channel)
@@ -60,7 +61,7 @@ class GameInstance {
             callback({ accepted: true, text: 'Welcome!' })
         })
 
-        this.instance.onDisconnect(client => {
+        this.instance.events.on('disconnect', client => {
             this.instance.removeEntity(client.rawEntity)
             this.instance.removeEntity(client.smoothEntity)
             this.instance.removeChannel(client.channel)
@@ -70,11 +71,11 @@ class GameInstance {
 
         const obstacles = new Map()
 
-        const obsA = new Obstacle(150, 150, 250, 150)
+        const obsA = new Obstacle({ x: 150, y: 150, width: 250, height: 150 })
         this.instance.addEntity(obsA)
         obstacles.set(obsA.nid, obsA)
 
-        const obsB = new Obstacle(450, 600, 60, 150)
+        const obsB = new Obstacle({ x: 450, y: 600, width: 60, height: 150 })
         this.instance.addEntity(obsB)
         obstacles.set(obsB.nid, obsB)
 
@@ -82,7 +83,7 @@ class GameInstance {
 
 
 
-        this.instance.events.on('command::MoveCommand', (command, client, tick) => {
+        this.instance.events.on('command::MoveCommand', ({ command, client, tick }) => {
             const rawEntity = client.rawEntity
             const smoothEntity = client.smoothEntity
 
@@ -95,14 +96,29 @@ class GameInstance {
             rawEntity.weaponSystem.update(command.delta)
         })
 
-        this.instance.events.on('command::FireCommand', (command, client, tick) => {
+        this.instance.events.on('command::FireCommand', ({ command, client, tick }) => {
             const rawEntity = client.rawEntity
             const smoothEntity = client.smoothEntity
 
-            if (rawEntity.fire()) {            
+            if (rawEntity.fire()) {
+
+
+                let endX = command.x
+                let endY = command.y
+
+                this.obstacles.forEach(obstacle => {
+                    const hitObstacle = CollisionSystem.checkLinePolygon(rawEntity.x, rawEntity.y, command.x, command.y, obstacle.collider)
+                    console.log('hit obstacle...?', hitObstacle)
+                    if (hitObstacle) {
+                        endX -= hitObstacle.overlapV.x
+                        endY -= hitObstacle.overlapV.y
+                    }
+                })
+
+
                 const timeAgo = client.latency + 100
 
-                this.lagCompensatedHitscanCheck(rawEntity.x, rawEntity.y, command.x, command.y, timeAgo, (victim) => {
+                this.lagCompensatedHitscanCheck(rawEntity.x, rawEntity.y, endX, endY, timeAgo, (victim) => {
                     if (victim.nid !== rawEntity.nid && victim.nid !== smoothEntity.nid) {
                         damagePlayer(victim)
                     }
@@ -127,7 +143,7 @@ class GameInstance {
         compensatedEntityPositions.forEach(entityProxy => {
             // look up the real entity
             const realEntity = this.instance.entities.get(entityProxy.nid)
-      
+
             if (realEntity && realEntity.collidable) {
                 const tempX = realEntity.collider.pos.x
                 const tempY = realEntity.collider.pos.y
@@ -150,16 +166,7 @@ class GameInstance {
     }
 
     update(delta, tick, now) {
-        let cmd = null
-        while (cmd = this.instance.getNextCommand()) {
-            const tick = cmd.tick
-            const client = cmd.client
-
-            for (let i = 0; i < cmd.commands.length; i++) {
-                const command = cmd.commands[i]
-                this.instance.events.emit(`command::${ command.protocol.name}`, command, client, tick)
-            }
-        } 
+        this.instance.emitCommands()
 
         this.instance.clients.forEach(client => {
             client.view.x = client.rawEntity.x

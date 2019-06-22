@@ -2,7 +2,8 @@ import PIXIRenderer from './graphics/PIXIRenderer'
 import InputSystem from './InputSystem'
 import MoveCommand from '../common/command/MoveCommand'
 import FireCommand from '../common/command/FireCommand'
-import EntityFactory from './EntityFactory'
+import createFactories from './factories/createFactories'
+import CollisionSystem from '../common/CollisionSystem'
 
 // ignoring certain data from the sever b/c we will be predicting these properties on the client
 const ignoreProps = ['x', 'y', 'rotation']
@@ -14,10 +15,6 @@ const shouldIgnore = (myId, update) => {
     }
     return false
 }
-
-
-
-import context from './Context'
 
 class Simulator {
     constructor(client) {
@@ -32,12 +29,8 @@ class Simulator {
         this.myRawEntity = null
         this.mySmoothEntity = null
         
-        context.set('simulator', this)
-        context.set('renderer', this.renderer)
-        context.set('obstacles',this.obstacles)
 
-
-        client.factory = EntityFactory({
+        client.factory = createFactories({
             context: this,
             obstacles: this.obstacles,
             renderer: this.renderer
@@ -94,7 +87,20 @@ class Simulator {
 
     simulateShot(x, y, tx, ty) {
         // TODO: simulate impact against entities/terrain
-        this.renderer.drawHitscan(x, y, tx, ty, 0xffffff)
+        let endX = tx
+        let endY = ty
+        this.obstacles.forEach(obstacle => {
+            const hitObstacle = CollisionSystem.checkLinePolygon(x, y, tx, ty, obstacle.collider)
+            console.log('hit obstacle...?', hitObstacle)
+            if (hitObstacle) {
+                endX += hitObstacle.overlapV.x
+                endY += hitObstacle.overlapV.y
+            }
+        })
+
+
+
+        this.renderer.drawHitscan(x, y, endX, endY, 0xffffff)
     }
 
     update(delta) {

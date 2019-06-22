@@ -11,8 +11,8 @@ class GameClient {
         this.simulator = new Simulator(this.client)
 
         this.client.events.on('connected', res => { console.log('onConnect response:', res) })
-        this.client.events.on('disconnected', () => { console.log('connection closed') }) 
-        this.client.connect('ws://localhost:8079')       
+        this.client.events.on('disconnected', () => { console.log('connection closed') })
+        this.client.connect('ws://localhost:8079')
     }
 
     update(delta, tick, now) {
