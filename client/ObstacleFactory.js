@@ -1,6 +1,6 @@
 //obs
 
-import Obstacle from './graphics/Obstacle'
+import ObstacleGraphics from './graphics/ObstacleGraphics'
 
 //import { obstacles, renderer } from './Context'
 
@@ -8,10 +8,9 @@ import Obstacle from './graphics/Obstacle'
 export default ({ obstacles, renderer }) => {
     return {
         create({ data, entity }) {
-            entity.reset()
             obstacles.set(entity.nid, entity)
 
-            const clientEntity = new Obstacle(entity)
+            const clientEntity = new ObstacleGraphics(entity)
             renderer.entities.set(entity.nid, clientEntity)
             renderer.middleground.addChild(clientEntity)
 

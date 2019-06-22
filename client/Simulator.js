@@ -1,14 +1,8 @@
 import PIXIRenderer from './graphics/PIXIRenderer'
-import PlayerCharacter from '../common/entity/PlayerCharacter'
-import Obstacle from '../common/entity/Obstacle'
 import InputSystem from './InputSystem'
 import MoveCommand from '../common/command/MoveCommand'
 import FireCommand from '../common/command/FireCommand'
-
-import ObstacleCud from './Obstacle'
-
-
-import reactive from './reactive'
+import EntityFactory from './EntityFactory'
 
 // ignoring certain data from the sever b/c we will be predicting these properties on the client
 const ignoreProps = ['x', 'y', 'rotation']
@@ -21,15 +15,7 @@ const shouldIgnore = (myId, update) => {
     return false
 }
 
-import PlayerCharacterCRUD from './PlayerCharacterCRUD'
 
-
-const createFactory = ({ obstacles, renderer, context }) => {
-    return {
-        'PlayerCharacter': PlayerCharacterCRUD({ renderer, context }),
-        'Obstacle': ObstacleCud({ renderer, obstacles })
-    }
-}
 
 import context from './Context'
 
@@ -51,7 +37,7 @@ class Simulator {
         context.set('obstacles',this.obstacles)
 
 
-        client.factory = createFactory({
+        client.factory = EntityFactory({
             context: this,
             obstacles: this.obstacles,
             renderer: this.renderer

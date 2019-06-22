@@ -1,7 +1,7 @@
 import * as PIXI from 'pixi.js'
 import HitpointBar from './HitpointBar'
 
-class PlayerCharacter extends PIXI.Container {
+class PlayerGraphics extends PIXI.Container {
     constructor(entity) {
         super()
         this.nid = entity.nid
@@ -59,4 +59,4 @@ class PlayerCharacter extends PIXI.Container {
     }
 }
 
-export default PlayerCharacter
+export default PlayerGraphics

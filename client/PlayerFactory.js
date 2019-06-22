@@ -1,11 +1,11 @@
 
-import PlayerCharacter from './graphics/PlayerCharacter'
+import PlayerGraphics from './graphics/PlayerGraphics'
 
 export default ({ context, renderer }) => {
     return {
         create({ data, entity }) {
 
-            const cl = new PlayerCharacter(entity)
+            const cl = new PlayerGraphics(entity)
             //renderer.entities.set(entity.nid, cl)
             renderer.middleground.addChild(cl)
             //return clientEntity

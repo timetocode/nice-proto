@@ -1,6 +1,6 @@
 import * as PIXI from 'pixi.js'
 
-class Obstacle extends PIXI.Container {
+class ObstacleGraphics extends PIXI.Container {
     constructor(entity) {
         super()
         this.nid = entity.nid
@@ -23,4 +23,4 @@ class Obstacle extends PIXI.Container {
     }
 }
 
-export default Obstacle
+export default ObstacleGraphics

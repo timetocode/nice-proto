@@ -1,7 +1,5 @@
 import * as PIXI from 'pixi.js'
-import PlayerCharacter from './PlayerCharacter'
 import BackgroundGrid from './BackgroundGrid'
-import Obstacle from './Obstacle'
 
 class PIXIRenderer {
     constructor(input, sounds) {
