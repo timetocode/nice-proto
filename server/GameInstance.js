@@ -75,9 +75,9 @@ class GameInstance {
         this.instance.addEntity(obsA)
         obstacles.set(obsA.nid, obsA)
 
-        const obsB = new Obstacle({ x: 450, y: 600, width: 60, height: 150 })
-        this.instance.addEntity(obsB)
-        obstacles.set(obsB.nid, obsB)
+        //const obsB = new Obstacle({ x: 450, y: 600, width: 60, height: 150 })
+        //this.instance.addEntity(obsB)
+       // obstacles.set(obsB.nid, obsB)
 
         this.obstacles = obstacles
 
@@ -110,8 +110,8 @@ class GameInstance {
                     const hitObstacle = CollisionSystem.checkLinePolygon(rawEntity.x, rawEntity.y, command.x, command.y, obstacle.collider)
                     console.log('hit obstacle...?', hitObstacle)
                     if (hitObstacle) {
-                        endX -= hitObstacle.overlapV.x
-                        endY -= hitObstacle.overlapV.y
+                        endX = hitObstacle.x
+                        endY = hitObstacle.y
                     }
                 })
 

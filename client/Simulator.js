@@ -90,11 +90,11 @@ class Simulator {
         let endX = tx
         let endY = ty
         this.obstacles.forEach(obstacle => {
-            const hitObstacle = CollisionSystem.checkLinePolygon(x, y, tx, ty, obstacle.collider)
+            const hitObstacle = CollisionSystem.checkLinePolygon(x, y, tx, ty, obstacle.collider, true)
             console.log('hit obstacle...?', hitObstacle)
             if (hitObstacle) {
-                endX += hitObstacle.overlapV.x
-                endY += hitObstacle.overlapV.y
+                endX = hitObstacle[0].x
+                endY = hitObstacle[0].y
             }
         })
 
