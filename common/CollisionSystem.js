@@ -1,7 +1,5 @@
 import SAT from 'sat'
 
-
-
 const lineLine = (x1, y1, x2, y2, x3, y3, x4, y4) => {
 	//console.log('yo', x1, y1, x2, y2, x3, y3, x4, y4) 
 	const axd = x2 - x1
@@ -23,7 +21,6 @@ const lineLine = (x1, y1, x2, y2, x3, y3, x4, y4) => {
 	}
 	return false
 }
-
 
 const distanceSquared = (x, y) => {
 	return x * x + y * y
@@ -55,7 +52,6 @@ CollisionSystem.createCircleCollider = (x, y, radius) => {
 		set y(value) {
 			this.circle.pos.y = value
 		}
-
 	}
 }
 
@@ -78,13 +74,12 @@ CollisionSystem.createRectangleCollider = (x, y, width, height) => {
 		set y(value) {
 			this.polygon.pos.y = value
 		}
-
 	}
 }
 
 CollisionSystem.moveWithCollisions = (entity, obstacles) => {
 	obstacles.forEach(obstacle => {
-		if (SAT.testCirclePolygon(entity.collider, obstacle.collider, response)) {
+		if (SAT.testCirclePolygon(entity.collider.circle, obstacle.collider.polygon, response)) {
 			//console.log('res', response)
 			entity.x -= response.overlapV.x
 			entity.y -= response.overlapV.y

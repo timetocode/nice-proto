@@ -8,7 +8,7 @@ export default (instance) => {
     })
 
     instance.onDisconnect(client => {
-        instance.events.emit('disconnect', { client })
+        instance.events.emit('disconnect', client)
     })
 
     instance.emitCommands = () => {

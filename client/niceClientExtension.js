@@ -1,4 +1,4 @@
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'events'
 
 export default (client) => {
     client.events = new EventEmitter()
@@ -42,35 +42,44 @@ export default (client) => {
         })
     }
 
+	// automated generation of a SIMULATOR.. DUN DUN DUN
+	client.sims = new Map()
+	client.entities = new Map()
 
-    // automated generation of a SIMULATOR.. DUN DUN DUN
-    client.simulation = {
-        entities: new Map(),
-        clientEntities: new Map()
-    }
 
+	// gather constructors from nengiConfig
     const constructors = {}
     client.config.protocols.entities.forEach(ep => {
         constructors[ep[0]] = ep[1]
     })
 
     client.events.on('create', data => {
+		// construct the entity (nengiConfig constructor)
         const name = data.protocol.name
         const constructor = constructors[name]
         if (!constructor) {
             console.log(`No constructor found for ${ name }`)
         }
-        const entity = new constructor(data)
-        Object.assign(entity, data)
-        client.simulation.entities.set(entity.nid, entity)
-        console.log('simulationzz')
+        const sim = new constructor(data)
+		Object.assign(sim, data)
+		client.sims.set(sim.nid, sim)		
+
+		// construct the client entity (from factory)
         if (client.factory) {
-            console.log('client factory')
-            const fact = client.factory[name]
-            if (fact) {
-                const clientEntity = fact.create({ data, entity })
-                console.log('cl', clientEntity)
-                client.simulation.clientEntities.set(clientEntity.nid, clientEntity)
+            const factory = client.factory[name]
+            if (factory) {
+				const entity = factory.create({ data, sim })
+				Object.assign(entity, data)
+
+				if (factory.watch) {
+					data.protocol.keys.forEach(prop => {
+						if (factory.watch[prop]) {
+							factory.watch[prop]({ value: data[prop], entity })
+						}
+					})
+				}
+
+                client.entities.set(entity.nid, entity)
             }
         }
     })
@@ -80,40 +89,40 @@ export default (client) => {
             //console.log('ignore', update)
             return
         }
-        const entity = client.simulation.entities.get(update.nid)
+        const sim = client.sims.get(update.nid)
+        if (sim) {
+            sim[update.prop] = update.value
+        } else {
+            console.log('tried to update a sim that did not exist')
+        }
+        const entity = client.entities.get(update.nid)
         if (entity) {
-            entity[update.prop] = update.value
+			entity[update.prop] = update.value
+
+			const name = entity.protocol.name
+			const factory = client.factory[name]
+
+			if (factory.watch && factory.watch[update.prop]) {
+				factory.watch[update.prop]({ id: update.id, value: update.value, entity })
+			}
+
         } else {
             console.log('tried to update an entity that did not exist')
-        }
-        const cl_entity = client.simulation.clientEntities.get(update.nid)
-        if (cl_entity) {
-            cl_entity[update.prop] = update.value
-        } else {
-            console.log('tried to update a  cl_entity that did not exist')
         }
     })
 
     
     client.events.on('delete', nid => {
-        if (client.simulation.entities.has(nid)) {
-            client.simulation.entities.delete(nid)
+        if (client.sims.has(nid)) {
+            client.sims.delete(nid)
         } else {
             console.log('tried to delete an entity that did not exist')
         }
 
-        if (client.simulation.clientEntities.has(nid)) {
-            client.simulation.clientEntities.delete(nid)
+        if (client.entities.has(nid)) {
+            client.entities.delete(nid)
         } else {
             console.log('tried to delete an entity that did not exist')
         }
     })
-
-
-
-
-
-
-
-
 }

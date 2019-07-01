@@ -14,7 +14,6 @@ class PlayerGraphics extends PIXI.Container {
         this.hitpointBar.y = -20
         this.hitpointBar.setHitpointPercentage(entity._hitpoints/100)
 
-        this._hitpoints = 0
         this.hitpoints = entity.hitpoints
         this.rotation = entity.rotation
 
@@ -36,11 +35,6 @@ class PlayerGraphics extends PIXI.Container {
         this.addChild(this.body)
 
         this.addChild(this.hitpointBar)
-    }
-
-    set hitpoints(value) {
-        this._hitpoints = value
-        this.hitpointBar.setHitpointPercentage(value/100)
     }
 
     hide() {

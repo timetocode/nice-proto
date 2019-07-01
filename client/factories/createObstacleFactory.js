@@ -2,14 +2,14 @@ import ObstacleGraphics from '../graphics/ObstacleGraphics'
 
 export default ({ obstacles, renderer }) => {
     return {
-        create({ data, entity }) {
-            obstacles.set(entity.nid, entity)
+        create({ data, sim }) {
+            obstacles.set(data.nid, sim)
 
-            const clientEntity = new ObstacleGraphics(entity)
-            renderer.entities.set(entity.nid, clientEntity)
-            renderer.middleground.addChild(clientEntity)
+            const entity = new ObstacleGraphics(data)
+            renderer.entities.set(data.nid, entity)
+            renderer.middleground.addChild(entity)
 
-            return clientEntity
+            return entity
         },
         delete(nid) {
             renderer.deleteEntity(nid)

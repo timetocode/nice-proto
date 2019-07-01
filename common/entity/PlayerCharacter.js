@@ -1,83 +1,50 @@
 import nengi from 'nengi'
-import WeaponSystem from '../WeaponSystem'
-import SAT from 'sat'
 import CollisionSystem from '../CollisionSystem'
 
 class PlayerCharacter {
-    constructor() {
-        this.x = 0
-        this.y = 0
-        this.rotation = 0
-        this.hitpoints = 100
-        this.isAlive = true
+	constructor() {
+		// x & y are getters
+		//this.x = 0
+		//this.y = 0
+		this.rotation = 0
+		this.hitpoints = 100
+		this.isAlive = true
+		this.speed = 400
 
-        this.moveDirection = {
-            x: 0,
-            y: 0
-        }
+		// weapon cooldown!
+		// example of a plain data-only component
+		this.weapon = {
+			onCooldown: false,
+			cooldown: 0.5,
+			acc: 0
+		}
 
-        this.speed = 400
-        this.weaponSystem = new WeaponSystem()
-        this.collider = new SAT.Circle(new SAT.Vector(this.x, this.y), 25)
-    }
+		// collider!
+		// example of a component that involves fancy stuff from another libary
+		this.collider = CollisionSystem.createCircleCollider(0, 0, 25)
+	}
 
-    fire() {
-        if (!this.isAlive) {
-            return false
-        }
-        return this.weaponSystem.fire()
-    }
+	get x() {
+		return this.collider.x
+	}
+	set x(value) {
+		this.collider.x = value
+	}
 
-    processMove(command, obstacles) {
-        if (!this.isAlive) {
-            return
-        }
-
-        this.rotation = command.rotation
-
-        let unitX = 0
-        let unitY = 0
-
-        // create forces from input
-        if (command.forward) { unitY -= 1 }
-        if (command.backward) { unitY += 1 }
-        if (command.left) { unitX -= 1 }
-        if (command.right) { unitX += 1 }
-
-        // normalize      
-        const len = Math.sqrt(unitX * unitX + unitY * unitY)
-        if (len > 0) {
-            unitX = unitX / len
-            unitY = unitY / len
-        }
-
-        this.moveDirection.x = unitX
-        this.moveDirection.y = unitY
-
-        this.x += this.moveDirection.x * this.speed * command.delta
-        this.y += this.moveDirection.y * this.speed * command.delta
-
-        this.collider.pos.x = this.x
-        this.collider.pos.y = this.y
-
-        // brute force yo
-        if (obstacles) {
-            CollisionSystem.moveWithCollisions(this, obstacles)
-
-            // make sure collider moves too, as moveWithCollisions may have move us
-            this.collider.pos.x = this.x
-            this.collider.pos.y = this.y
-        }
-
-    }
+	get y() {
+		return this.collider.y
+	}
+	set y(value) {
+		this.collider.y = value
+	}
 }
 
 PlayerCharacter.protocol = {
-    x: { type: nengi.Float32, interp: true },
-    y: { type: nengi.Float32, interp: true },
-    rotation: { type: nengi.RotationFloat32, interp: true },
-    isAlive: nengi.Boolean,
-    hitpoints: nengi.UInt8
+	x: { type: nengi.Float32, interp: true },
+	y: { type: nengi.Float32, interp: true },
+	rotation: { type: nengi.RotationFloat32, interp: true },
+	isAlive: nengi.Boolean,
+	hitpoints: nengi.UInt8
 }
 
 export default PlayerCharacter

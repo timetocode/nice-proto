@@ -1,15 +1,13 @@
-import nengi from 'nengi';
-import nengiConfig from '../common/nengiConfig';
-//import ProtocolMap from '../nengi/core/protocol/ProtocolMap';
-//import metaConfig from '../nengi/core/common/metaConfig';
-import MoveCommand from '../common/command/MoveCommand';
+import nengi from 'nengi'
+import nengiConfig from '../common/nengiConfig'
+import MoveCommand from '../common/command/MoveCommand'
+import FireCommand from '../common/command/FireCommand'
 
+const protocolMap = new nengi.ProtocolMap(nengiConfig, nengi.metaConfig)
 
-var protocolMap = new nengi.ProtocolMap(nengiConfig, nengi.metaConfig)
-
-var address = 'ws://localhost:8079'
-var numberOfBots = 30
-var bots = new Map()
+const address = 'ws://localhost:8079'
+const numberOfBots = 30
+const bots = new Map()
 
 function connectNewBot(id) {
     let bot = new nengi.Bot(nengiConfig, protocolMap)
@@ -45,7 +43,7 @@ function randomBool() {
     return Math.random() > 0.5
 }
 
-var loop = function() {
+const loop = function() {
     bots.forEach(bot => {
         if (bot.websocket) {
             bot.readNetwork()
@@ -81,7 +79,4 @@ var loop = function() {
     })
 }
 
-
 setInterval(loop, 16)
-
-

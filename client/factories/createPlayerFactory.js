@@ -1,27 +1,31 @@
 import PlayerGraphics from '../graphics/PlayerGraphics'
 
-export default ({ context, renderer }) => {
-    return {
-        create({ data, entity }) {
-            const clientEntity = new PlayerGraphics(data)
-            renderer.middleground.addChild(clientEntity)
+export default ({ simulator, renderer }) => {
+	return {
+		create({ data, sim }) {
+			const entity = new PlayerGraphics(data)
+			renderer.middleground.addChild(entity)
 
-            /* self, raw */
-            if (entity.nid === context.myRawId) {
-                context.myRawEntity = entity
-                clientEntity.body.tint = 0xffffff // debug: turn self white
-            }
+			/* self, raw */
+			if (data.nid === simulator.myRawId) {
+				simulator.myRawEntity = sim
+				entity.body.tint = 0xffffff // debug: turn self white
+			}
 
-             /* self, smooth */
-            if (entity.nid === context.mySmoothId) {
-                // hide our smooth
-                context.mySmoothEntity = entity
-                clientEntity.hide()
-            }
-            return clientEntity
-        },
-        delete(nid) {
-            renderer.deleteEntity(nid)
-        }
-    }
+			/* self, smooth */
+			if (data.nid === simulator.mySmoothId) {
+				simulator.mySmoothEntity = sim
+				entity.hide() // hide our second entity
+			}
+			return entity
+		},
+		delete(nid) {
+			renderer.deleteEntity(nid)
+		},
+		watch: {
+			hitpoints({ entity, value }) {
+				entity.hitpointBar.setHitpointPercentage(value / 100)
+			}
+		}
+	}
 }
