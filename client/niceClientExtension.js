@@ -1,14 +1,11 @@
-import { EventEmitter } from 'events'
-
 export default (client) => {
-    client.events = new EventEmitter()
-
+    
     client.onConnect(res => {
-        client.events.emit('connected', res)
+        client.emit('connected', res)
     })
 
     client.onClose(() => {
-        client.events.emit('disconnected')
+        client.emit('disconnected')
     })
 
     client.readNetworkAndEmit = () => {
@@ -16,29 +13,29 @@ export default (client) => {
 
         network.entities.forEach(snapshot => {
             snapshot.createEntities.forEach(entity => {
-                client.events.emit(`create::${ entity.protocol.name }`, entity)
-                client.events.emit(`create`, entity)
+                client.emit(`create::${ entity.protocol.name }`, entity)
+                client.emit(`create`, entity)
             })
     
             snapshot.updateEntities.forEach(update => {
-                client.events.emit(`update`, update)
+                client.emit(`update`, update)
             })
     
             snapshot.deleteEntities.forEach(id => {
-                client.events.emit(`delete`, id)
+                client.emit(`delete`, id)
             })
         })
 
         network.predictionErrors.forEach(predictionErrorFrame => {
-            client.events.emit(`predictionErrorFrame`, predictionErrorFrame)
+            client.emit(`predictionErrorFrame`, predictionErrorFrame)
         })
 
         network.messages.forEach(message => {
-            client.events.emit(`message::${ message.protocol.name }`, message)
+            client.emit(`message::${ message.protocol.name }`, message)
         })
 
         network.localMessages.forEach(localMessage => {
-            client.events.emit(`message::${ localMessage.protocol.name }`, localMessage)
+            client.emit(`message::${ localMessage.protocol.name }`, localMessage)
         })
     }
 
@@ -53,7 +50,7 @@ export default (client) => {
         constructors[ep[0]] = ep[1]
     })
 
-    client.events.on('create', data => {
+    client.on('create', data => {
 		// construct the entity (nengiConfig constructor)
         const name = data.protocol.name
         const constructor = constructors[name]
@@ -84,7 +81,7 @@ export default (client) => {
         }
     })
 
-    client.events.on('update', update => {
+    client.on('update', update => {
         if (client.entityUpdateFilter(update)) {
             //console.log('ignore', update)
             return
@@ -112,7 +109,7 @@ export default (client) => {
     })
 
     
-    client.events.on('delete', nid => {
+    client.on('delete', nid => {
         if (client.sims.has(nid)) {
             client.sims.delete(nid)
         } else {

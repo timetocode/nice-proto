@@ -21,7 +21,7 @@ class GameInstance {
 		this.obstacles = setupObstacles(this.instance)
 		// (the rest is just attached to client objects when they connect)
 
-		this.instance.events.on('connect', ({ client, callback }) => {
+		this.instance.on('connect', ({ client, callback }) => {
 			// PER player-related state, attached to clients
 
 			// create a entity for this client
@@ -62,14 +62,14 @@ class GameInstance {
 			callback({ accepted: true, text: 'Welcome!' })
 		})
 
-		this.instance.events.on('disconnect', client => {
+		this.instance.on('disconnect', client => {
 			// clean up per client state
 			this.instance.removeEntity(client.rawEntity)
 			this.instance.removeEntity(client.smoothEntity)
 			this.instance.removeChannel(client.channel)
 		})	
 
-		this.instance.events.on('command::MoveCommand', ({ command, client, tick }) => {
+		this.instance.on('command::MoveCommand', ({ command, client, tick }) => {
 			// move this client's entity
 			const rawEntity = client.rawEntity
 			const smoothEntity = client.smoothEntity
@@ -81,7 +81,7 @@ class GameInstance {
 			})
 		})
 
-		this.instance.events.on('command::FireCommand', ({ command, client, tick }) => {
+		this.instance.on('command::FireCommand', ({ command, client, tick }) => {
 			// shoot from the perspective of this client's entity
 			const rawEntity = client.rawEntity
 			const smoothEntity = client.smoothEntity

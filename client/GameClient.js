@@ -10,8 +10,8 @@ class GameClient {
         niceClientExtension(this.client)// API EXTENSION
         this.simulator = new Simulator(this.client)
 
-        this.client.events.on('connected', res => { console.log('onConnect response:', res) })
-        this.client.events.on('disconnected', () => { console.log('connection closed') })
+        this.client.on('connected', res => { console.log('onConnect response:', res) })
+        this.client.on('disconnected', () => { console.log('connection closed') })
         this.client.connect('ws://localhost:8079')
     }
 

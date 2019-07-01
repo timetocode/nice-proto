@@ -43,13 +43,13 @@ class Simulator {
 			return shouldIgnore(this.myRawId, update)
 		}
 
-		client.events.on('message::Identity', message => {
+		client.on('message::Identity', message => {
 			this.myRawId = message.rawId
 			this.mySmoothId = message.smoothId
 			console.log('identified as', message)
 		})
 
-		client.events.on('message::WeaponFired', message => {
+		client.on('message::WeaponFired', message => {
 			//console.log('server says a weapon was fired', message)
 			if (message.sourceId === this.mySmoothEntity.nid) {
 				return
@@ -57,7 +57,7 @@ class Simulator {
 			this.renderer.drawHitscan(message.x, message.y, message.tx, message.ty, 0xff0000)
 		})
 
-		client.events.on('predictionErrorFrame', predictionErrorFrame => {
+		client.on('predictionErrorFrame', predictionErrorFrame => {
 			reconcilePlayer(predictionErrorFrame, this.client, this.myRawEntity, this.obstacles)
 		})
 	}
