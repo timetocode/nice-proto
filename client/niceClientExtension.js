@@ -110,14 +110,19 @@ export default (client) => {
 
     
     client.on('delete', nid => {
+		const entity = client.entities.get(nid)
+		const name = entity.protocol.name
+		const factory = client.factory[name]
+
         if (client.sims.has(nid)) {
-            client.sims.delete(nid)
+			client.sims.delete(nid)			
         } else {
             console.log('tried to delete an entity that did not exist')
         }
 
         if (client.entities.has(nid)) {
-            client.entities.delete(nid)
+			client.entities.delete(nid)
+			factory.delete({ nid, entity })
         } else {
             console.log('tried to delete an entity that did not exist')
         }

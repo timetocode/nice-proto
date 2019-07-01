@@ -5,6 +5,7 @@ export default ({ simulator, renderer }) => {
 		create({ data, sim }) {
 			const entity = new PlayerGraphics(data)
 			renderer.middleground.addChild(entity)
+			renderer.entities.set(entity.nid, entity)
 
 			/* self, raw */
 			if (data.nid === simulator.myRawId) {
@@ -17,10 +18,12 @@ export default ({ simulator, renderer }) => {
 				simulator.mySmoothEntity = sim
 				entity.hide() // hide our second entity
 			}
+
 			return entity
 		},
-		delete(nid) {
-			renderer.deleteEntity(nid)
+		delete({ nid, entity }) {
+			renderer.entities.delete(nid)
+			renderer.middleground.removeChild(entity)
 		},
 		watch: {
 			hitpoints({ entity, value }) {
