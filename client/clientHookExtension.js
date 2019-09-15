@@ -40,8 +40,8 @@ export default (client) => {
     }
 
 	// automated generation of a SIMULATOR.. DUN DUN DUN
-	client.sims = new Map()
-	client.entities = new Map()
+	client.svEntities = new Map()
+	client.clEntities = new Map()
 
 
 	// gather constructors from nengiConfig
@@ -57,15 +57,15 @@ export default (client) => {
         if (!constructor) {
             console.log(`No constructor found for ${ name }`)
         }
-        const sim = new constructor(data)
-		Object.assign(sim, data)
-		client.sims.set(sim.nid, sim)		
+        const svEntity = new constructor(data)
+		Object.assign(svEntity, data)
+		client.svEntities.set(svEntity.nid, svEntity)		
 
 		// construct the client entity (from factory)
         if (client.factory) {
             const factory = client.factory[name]
             if (factory) {
-				const entity = factory.create({ data, sim })
+				const entity = factory.create({ data, sim: svEntity })
 				Object.assign(entity, data)
 
 				if (factory.watch) {
@@ -76,7 +76,7 @@ export default (client) => {
 					})
 				}
 
-                client.entities.set(entity.nid, entity)
+                client.clEntities.set(entity.nid, entity)
             }
         }
     })
@@ -86,13 +86,13 @@ export default (client) => {
             //console.log('ignore', update)
             return
         }
-        const sim = client.sims.get(update.nid)
-        if (sim) {
-            sim[update.prop] = update.value
+        const svEntity = client.svEntities.get(update.nid)
+        if (svEntity) {
+            svEntity[update.prop] = update.value
         } else {
             console.log('tried to update a sim that did not exist')
         }
-        const entity = client.entities.get(update.nid)
+        const entity = client.clEntities.get(update.nid)
         if (entity) {
 			entity[update.prop] = update.value
 
@@ -110,18 +110,18 @@ export default (client) => {
 
     
     client.on('delete', nid => {
-		const entity = client.entities.get(nid)
+		const entity = client.clEntities.get(nid)
 		const name = entity.protocol.name
 		const factory = client.factory[name]
 
-        if (client.sims.has(nid)) {
-			client.sims.delete(nid)			
+        if (client.svEntities.has(nid)) {
+			client.svEntities.delete(nid)			
         } else {
             console.log('tried to delete an entity that did not exist')
         }
 
-        if (client.entities.has(nid)) {
-			client.entities.delete(nid)
+        if (client.clEntities.has(nid)) {
+			client.clEntities.delete(nid)
 			factory.delete({ nid, entity })
         } else {
             console.log('tried to delete an entity that did not exist')

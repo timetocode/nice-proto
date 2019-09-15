@@ -2,7 +2,7 @@ import PIXIRenderer from './graphics/PIXIRenderer'
 import InputSystem from './InputSystem'
 import MoveCommand from '../common/command/MoveCommand'
 import FireCommand from '../common/command/FireCommand'
-import createFactories from './factories/createFactories'
+import createHooks from './hooks/createHooks'
 import CollisionSystem from '../common/CollisionSystem'
 import reconcilePlayer from './reconcilePlayer'
 import applyCommand from '../common/applyCommand'
@@ -32,7 +32,7 @@ class Simulator {
 		this.myRawEntity = null
 		this.mySmoothEntity = null
 
-		client.factory = createFactories({
+		client.factory = createHooks({
 			/* dependency injection */
 			simulator: this,
 			obstacles: this.obstacles,

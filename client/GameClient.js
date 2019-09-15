@@ -1,13 +1,13 @@
 import nengi from 'nengi'
 import nengiConfig from '../common/nengiConfig'
 import Simulator from './Simulator'
-import niceClientExtension  from './niceClientExtension'
+import clientHookExtension  from './clientHookExtension'
 
 class GameClient {
     constructor() {
         this.client = new nengi.Client(nengiConfig, 100)
         this.client.factory = {}
-        niceClientExtension(this.client)// API EXTENSION
+        clientHookExtension(this.client)// API EXTENSION
         this.simulator = new Simulator(this.client)
 
         this.client.on('connected', res => { console.log('onConnect response:', res) })
