@@ -32,12 +32,13 @@ class Simulator {
 		this.myRawEntity = null
 		this.mySmoothEntity = null
 
-		client.factory = createHooks({
-			/* dependency injection */
+		/*
+		client.hooks = createHooks({
 			simulator: this,
 			obstacles: this.obstacles,
 			renderer: this.renderer
 		})
+		*/
 
 		client.entityUpdateFilter = (update) => {
 			return shouldIgnore(this.myRawId, update)
@@ -107,7 +108,7 @@ class Simulator {
 			this.client.addCustomPrediction(this.client.tick, prediction, ['x', 'y'])
 
 			// also apply the result of the prediction to the graphical entity
-			const entity = this.client.entities.get(prediction.nid)
+			const entity = this.client.clEntities.get(prediction.nid)
 			entity.x = prediction.x
 			entity.y = prediction.y
 			entity.rotation = rotation

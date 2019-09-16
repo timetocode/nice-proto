@@ -2,13 +2,13 @@ import nengi from 'nengi'
 import nengiConfig from '../common/nengiConfig'
 import Simulator from './Simulator'
 import clientHookExtension  from './clientHookExtension'
+import createHooks from './hooks/createHooks'
 
 class GameClient {
     constructor() {
         this.client = new nengi.Client(nengiConfig, 100)
-        this.client.factory = {}
-        clientHookExtension(this.client)// API EXTENSION
-        this.simulator = new Simulator(this.client)
+		this.simulator = new Simulator(this.client)
+		clientHookExtension(this.client, createHooks(this.simulator))// API EXTENSION
 
         this.client.on('connected', res => { console.log('onConnect response:', res) })
         this.client.on('disconnected', () => { console.log('connection closed') })

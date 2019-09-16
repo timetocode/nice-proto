@@ -3,6 +3,7 @@ import PlayerGraphics from '../graphics/PlayerGraphics'
 export default ({ simulator, renderer }) => {
 	return {
 		create({ data, sim }) {
+			console.log('this happened')
 			const entity = new PlayerGraphics(data)
 			renderer.middleground.addChild(entity)
 			renderer.entities.set(entity.nid, entity)
