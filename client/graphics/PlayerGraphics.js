@@ -1,5 +1,5 @@
 import * as PIXI from 'pixi.js'
-import HitpointBar from './HitpointBar'
+import HitpointBar from './HitpointBar.js'
 
 class PlayerGraphics extends PIXI.Container {
     constructor(entity) {

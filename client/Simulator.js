@@ -1,12 +1,12 @@
-import PIXIRenderer from './graphics/PIXIRenderer'
-import InputSystem from './InputSystem'
-import MoveCommand from '../common/command/MoveCommand'
-import FireCommand from '../common/command/FireCommand'
-import createHooks from './hooks/createHooks'
-import CollisionSystem from '../common/CollisionSystem'
-import reconcilePlayer from './reconcilePlayer'
-import applyCommand from '../common/applyCommand'
-import { fire } from '../common/weapon'
+import PIXIRenderer from './graphics/PIXIRenderer.js'
+import InputSystem from './InputSystem.js'
+import MoveCommand from '../common/command/MoveCommand.js'
+import FireCommand from '../common/command/FireCommand.js'
+import createHooks from './hooks/createHooks.js'
+import CollisionSystem from '../common/CollisionSystem.js'
+import reconcilePlayer from './reconcilePlayer.js'
+import applyCommand from '../common/applyCommand.js'
+import { fire } from '../common/weapon.js'
 
 // ignoring certain data from the sever b/c we will be predicting these properties on the client
 const ignoreProps = ['x', 'y', 'rotation']

@@ -1,5 +1,5 @@
 import nengi from 'nengi'
-import CollisionSystem from '../CollisionSystem'
+import CollisionSystem from '../CollisionSystem.js'
 
 class PlayerCharacter {
 	constructor() {

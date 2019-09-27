@@ -1,5 +1,5 @@
-import GameInstance from './GameInstance';
-import nengiConfig from '../common/nengiConfig';
+import GameInstance from './GameInstance.js';
+import nengiConfig from '../common/nengiConfig.js';
 
 const gameInstance = new GameInstance(/*args*/)
 

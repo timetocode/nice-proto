@@ -1,5 +1,5 @@
 
-import GameClient from './GameClient';
+import GameClient from './GameClient.js';
 
 window.onload = function() {
     console.log('window loaded')

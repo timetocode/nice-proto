@@ -1,15 +1,15 @@
 import nengi from 'nengi'
-import nengiConfig from '../common/nengiConfig'
-import PlayerCharacter from '../common/entity/PlayerCharacter'
-import Identity from '../common/message/Identity'
-import WeaponFired from '../common/message/WeaponFired'
-import CollisionSystem from '../common/CollisionSystem'
-import followPath from './followPath'
-import damagePlayer from './damagePlayer'
-import niceInstanceExtension from './niceInstanceExtension'
-import applyCommand from '../common/applyCommand'
-import setupObstacles from './setupObstacles'
-import { fire } from '../common/weapon'
+import nengiConfig from '../common/nengiConfig.js'
+import PlayerCharacter from '../common/entity/PlayerCharacter.js'
+import Identity from '../common/message/Identity.js'
+import WeaponFired from '../common/message/WeaponFired.js'
+import CollisionSystem from '../common/CollisionSystem.js'
+import followPath from './followPath.js'
+import damagePlayer from './damagePlayer.js'
+import niceInstanceExtension from './niceInstanceExtension.js'
+import applyCommand from '../common/applyCommand.js'
+import setupObstacles from './setupObstacles.js'
+import { fire } from '../common/weapon.js'
 
 class GameInstance {
 	constructor() {
@@ -28,11 +28,11 @@ class GameInstance {
 			const rawEntity = new PlayerCharacter()
 
 			// make the raw entity only visible to this client
-			const channel = new nengi.Channel(nengiConfig)
+			const channel = new nengi.Channel(this.instance)
 			this.instance.addChannel(channel)
 			channel.subscribe(client)
 			channel.addEntity(rawEntity)
-			//this.instance.addEntity(rawEntity)
+			this.instance.addEntity(rawEntity)
 			client.channel = channel
 
 			// smooth entity is visible to everyone
@@ -50,12 +50,22 @@ class GameInstance {
 			client.smoothEntity = smoothEntity
 			client.positions = []
 
+			/*
+			// spread out players over a large area
+			const x = Math.random() * 10000
+			const y = Math.random() * 10000
+			rawEntity.x = x
+			rawEntity.y = y
+			smoothEntity.x = x
+			smoothEntity.y = y
+			*/
+
 			// define the view (the area of the game visible to this client, all else is culled)
 			client.view = {
 				x: rawEntity.x,
 				y: rawEntity.y,
-				halfWidth: 99999,
-				halfHeight: 99999
+				halfWidth: 500,
+				halfHeight: 500
 			}
 
 			// accept the connection
@@ -64,7 +74,8 @@ class GameInstance {
 
 		this.instance.on('disconnect', client => {
 			// clean up per client state
-			this.instance.removeEntity(client.rawEntity)
+			//this.instance.removeEntity(client.rawEntity)
+			client.channel.removeEntity(client.rawEntity)
 			this.instance.removeEntity(client.smoothEntity)
 			this.instance.removeChannel(client.channel)
 		})	

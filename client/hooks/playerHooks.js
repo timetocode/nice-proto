@@ -1,4 +1,4 @@
-import PlayerGraphics from '../graphics/PlayerGraphics'
+import PlayerGraphics from '../graphics/PlayerGraphics.js'
 
 export default ({ simulator, renderer }) => {
 	return {

@@ -1,4 +1,4 @@
-import ObstacleGraphics from '../graphics/ObstacleGraphics'
+import ObstacleGraphics from '../graphics/ObstacleGraphics.js'
 
 export default ({ obstacles, renderer }) => {
     return {

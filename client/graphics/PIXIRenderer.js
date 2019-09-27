@@ -1,5 +1,5 @@
 import * as PIXI from 'pixi.js'
-import BackgroundGrid from './BackgroundGrid'
+import BackgroundGrid from './BackgroundGrid.js'
 
 class PIXIRenderer {
     constructor() {

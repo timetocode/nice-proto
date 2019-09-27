@@ -1,4 +1,4 @@
-import applyCommand from '../common/applyCommand'
+import applyCommand from '../common/applyCommand.js'
 
 export default (predictionErrorFrame, client, entity, obstacles) => {
 	predictionErrorFrame.entities.forEach(predictionErrorEntity => {

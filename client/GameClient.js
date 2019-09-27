@@ -1,8 +1,8 @@
 import nengi from 'nengi'
-import nengiConfig from '../common/nengiConfig'
-import Simulator from './Simulator'
-import clientHookExtension  from './clientHookExtension'
-import createHooks from './hooks/createHooks'
+import nengiConfig from '../common/nengiConfig.js'
+import Simulator from './Simulator.js'
+import clientHookExtension  from './clientHookExtension.js'
+import createHooks from './hooks/createHooks.js'
 
 class GameClient {
     constructor() {

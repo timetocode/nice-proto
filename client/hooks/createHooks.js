@@ -1,5 +1,5 @@
-import obstacleHooks from './obstacleHooks'
-import playerHooks from './playerHooks'
+import obstacleHooks from './obstacleHooks.js'
+import playerHooks from './playerHooks.js'
 
 export default (simulator) => {
 	const { renderer, obstacles } = simulator

@@ -1,5 +1,5 @@
-import CollisionSystem from './CollisionSystem'
-import { update as updateWeapon } from './weapon' 
+import CollisionSystem from './CollisionSystem.js'
+import { update as updateWeapon } from './weapon.js' 
 
 export default (entity, command, obstacles) => {
 	if (!entity.isAlive) {

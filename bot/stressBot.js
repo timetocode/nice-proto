@@ -1,12 +1,12 @@
 import nengi from 'nengi'
-import nengiConfig from '../common/nengiConfig'
-import MoveCommand from '../common/command/MoveCommand'
-import FireCommand from '../common/command/FireCommand'
+import nengiConfig from '../common/nengiConfig.js'
+import MoveCommand from '../common/command/MoveCommand.js'
+import FireCommand from '../common/command/FireCommand.js'
 
 const protocolMap = new nengi.ProtocolMap(nengiConfig, nengi.metaConfig)
 
 const address = 'ws://localhost:8079'
-const numberOfBots = 30
+const numberOfBots = 90
 const bots = new Map()
 
 function connectNewBot(id) {
