@@ -6,9 +6,9 @@ for (let j = 0; j < 40; j++) {
     forked.send({
         address: `ws://localhost:8079/`,
         start: true
-    })	
+    })
 }
 process.on('SIGINT', () => {
-	console.log("multiBot caught interrupt signal")
-	process.exit()
+    console.log("multiBot caught interrupt signal")
+    process.exit()
 })

@@ -58,6 +58,10 @@ class Simulator {
 			this.renderer.drawHitscan(message.x, message.y, message.tx, message.ty, 0xff0000)
 		})
 
+		client.on('message::Notification', message => {
+			console.log('Notification', message)
+		})
+
 		client.on('predictionErrorFrame', predictionErrorFrame => {
 			reconcilePlayer(predictionErrorFrame, this.client, this.myRawEntity, this.obstacles)
 		})
@@ -103,7 +107,8 @@ class Simulator {
 			const prediction = {
 				nid: this.myRawEntity.nid,
 				x: this.myRawEntity.x,
-				y: this.myRawEntity.y
+				y: this.myRawEntity.y,
+				//protocol: this.myRawEntity.protocol
 			}
 			this.client.addCustomPrediction(this.client.tick, prediction, ['x', 'y'])
 

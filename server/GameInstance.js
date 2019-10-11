@@ -10,174 +10,208 @@ import niceInstanceExtension from './niceInstanceExtension.js'
 import applyCommand from '../common/applyCommand.js'
 import setupObstacles from './setupObstacles.js'
 import { fire } from '../common/weapon.js'
+import Notification from '../common/message/Notification'
 
 class GameInstance {
-	constructor() {
-		
-		this.instance = new nengi.Instance(nengiConfig, { port: 8079 })
-		niceInstanceExtension(this.instance)
+    constructor() {
 
-		// game-related state
-		this.obstacles = setupObstacles(this.instance)
-		// (the rest is just attached to client objects when they connect)
+        this.instance = new nengi.Instance(nengiConfig, { port: 8079 })
+        niceInstanceExtension(this.instance)
 
-		this.instance.on('connect', ({ client, callback }) => {
-			// PER player-related state, attached to clients
+        // game-related state
+        this.obstacles = setupObstacles(this.instance)
+        // (the rest is just attached to client objects when they connect)
 
-			// create a entity for this client
-			const rawEntity = new PlayerCharacter()
+        this.instance.on('connect', ({ client, callback }) => {
+            // PER player-related state, attached to clients
 
-			// make the raw entity only visible to this client
-			const channel = new nengi.Channel(this.instance)
-			this.instance.addChannel(channel)
-			channel.subscribe(client)
-			channel.addEntity(rawEntity)
-			this.instance.addEntity(rawEntity)
-			client.channel = channel
+            // create a entity for this client
+            const rawEntity = new PlayerCharacter()
 
-			// smooth entity is visible to everyone
-			const smoothEntity = new PlayerCharacter()
-			smoothEntity.collidable = true
-			this.instance.addEntity(smoothEntity)
+            // make the raw entity only visible to this client
+            const channel = this.instance.createChannel()
+            channel.subscribe(client)
 
-			// tell the client which entities it controls
-			this.instance.message(new Identity(rawEntity.nid, smoothEntity.nid), client)
+            this.instance.message(new Notification('yolo'), client)
+            channel.addMessage(new Notification('private channel created'))
+            channel.addEntity(rawEntity)
+            this.instance.addEntity(rawEntity)
+            client.channel = channel
 
-			// establish a relation between this entity and the client
-			rawEntity.client = client
-			client.rawEntity = rawEntity
-			smoothEntity.client = client
-			client.smoothEntity = smoothEntity
-			client.positions = []
+            // smooth entity is visible to everyone
+            const smoothEntity = new PlayerCharacter()
+            smoothEntity.collidable = true
+            this.instance.addEntity(smoothEntity)
 
-			/*
-			// spread out players over a large area
-			const x = Math.random() * 10000
-			const y = Math.random() * 10000
-			rawEntity.x = x
-			rawEntity.y = y
-			smoothEntity.x = x
-			smoothEntity.y = y
-			*/
+            // tell the client which entities it controls
+            this.instance.message(new Identity(rawEntity.nid, smoothEntity.nid), client)
 
-			// define the view (the area of the game visible to this client, all else is culled)
-			client.view = {
-				x: rawEntity.x,
-				y: rawEntity.y,
-				halfWidth: 500,
-				halfHeight: 500
-			}
+            // establish a relation between this entity and the client
+            rawEntity.client = client
+            client.rawEntity = rawEntity
+            smoothEntity.client = client
+            client.smoothEntity = smoothEntity
+            client.positions = []
 
-			// accept the connection
-			callback({ accepted: true, text: 'Welcome!' })
-		})
+            /*
+            // spread out players over a large area
+            const x = Math.random() * 10000
+            const y = Math.random() * 10000
+            rawEntity.x = x
+            rawEntity.y = y
+            smoothEntity.x = x
+            smoothEntity.y = y
+            */
 
-		this.instance.on('disconnect', client => {
-			// clean up per client state
-			//this.instance.removeEntity(client.rawEntity)
-			client.channel.removeEntity(client.rawEntity)
-			this.instance.removeEntity(client.smoothEntity)
-			this.instance.removeChannel(client.channel)
-		})	
+            // define the view (the area of the game visible to this client, all else is culled)
+            client.view = {
+                x: rawEntity.x,
+                y: rawEntity.y,
+                halfWidth: 500,
+                halfHeight: 500
+            }
 
-		this.instance.on('command::MoveCommand', ({ command, client, tick }) => {
-			// move this client's entity
-			const rawEntity = client.rawEntity
-			const smoothEntity = client.smoothEntity
-			applyCommand(rawEntity, command, this.obstacles)
-			client.positions.push({
-				x: rawEntity.x,
-				y: rawEntity.y,
-				rotation: rawEntity.rotation
-			})
-		})
+            // accept the connection
+            callback({ accepted: true, text: 'Welcome!' })
+        })
 
-		this.instance.on('command::FireCommand', ({ command, client, tick }) => {
-			// shoot from the perspective of this client's entity
-			const rawEntity = client.rawEntity
-			const smoothEntity = client.smoothEntity
+        this.instance.on('disconnect', client => {
+            // clean up per client state
+            client.channel.removeEntity(client.rawEntity)
+            this.instance.removeEntity(client.rawEntity)
+            this.instance.removeEntity(client.smoothEntity)
+            client.channel.destroy()
+        })
 
-			if (fire(rawEntity)) {
-				let endX = command.x
-				let endY = command.y
+        this.instance.on('command::MoveCommand', ({ command, client, tick }) => {
+            // move this client's entity
+            const rawEntity = client.rawEntity
+            const smoothEntity = client.smoothEntity
+            applyCommand(rawEntity, command, this.obstacles)
+            client.positions.push({
+                x: rawEntity.x,
+                y: rawEntity.y,
+                rotation: rawEntity.rotation
+            })
+        })
 
-				this.obstacles.forEach(obstacle => {
-					const hitObstacle = CollisionSystem.checkLinePolygon(rawEntity.x, rawEntity.y, command.x, command.y, obstacle.collider.polygon)
-					if (hitObstacle) {
-						endX = hitObstacle.x
-						endY = hitObstacle.y
-					}
-				})
+        this.instance.on('command::FireCommand', ({ command, client, tick }) => {
+            // shoot from the perspective of this client's entity
+            const rawEntity = client.rawEntity
+            const smoothEntity = client.smoothEntity
 
-				const timeAgo = client.latency + 100
+            if (fire(rawEntity)) {
+                let endX = command.x
+                let endY = command.y
 
-				this.lagCompensatedHitscanCheck(rawEntity.x, rawEntity.y, endX, endY, timeAgo, (victim) => {
-					if (victim.nid !== rawEntity.nid && victim.nid !== smoothEntity.nid) {
-						damagePlayer(victim)
-					}
-				})
+                this.obstacles.forEach(obstacle => {
+                    const hitObstacle = CollisionSystem.checkLinePolygon(rawEntity.x, rawEntity.y, command.x, command.y, obstacle.collider.polygon)
+                    if (hitObstacle) {
+                        endX = hitObstacle.x
+                        endY = hitObstacle.y
+                    }
+                })
 
-				this.instance.addLocalMessage(new WeaponFired(smoothEntity.nid, smoothEntity.x, smoothEntity.y, command.x, command.y))
-			}
-		})
+                const timeAgo = client.latency + 100
+
+                this.lagCompensatedHitscanCheck(rawEntity.x, rawEntity.y, endX, endY, timeAgo, (victim) => {
+                    if (victim.nid !== rawEntity.nid && victim.nid !== smoothEntity.nid) {
+                        damagePlayer(victim)
+                    }
+                })
+
+                this.instance.addLocalMessage(new WeaponFired(smoothEntity.nid, smoothEntity.x, smoothEntity.y, command.x, command.y))
+            }
+        })
 
 
-	}
+        const test = this.instance.createChannel()
 
-	lagCompensatedHitscanCheck(x1, y1, x2, y2, timeAgo, onHit) {
-		const area = {
-			x: (x1 + x2) / 2,
-			y: (y1 + y2) / 2,
-			halfWidth: Math.abs(x2 - x1),
-			halfHeight: Math.abs(y2 - y1)
-		}
+        const te = new PlayerCharacter()
+        te.x = 40
+        test.addEntity(te)
 
-		const compensatedEntityPositions = this.instance.historian.getLagCompensatedArea(timeAgo, area)
-		compensatedEntityPositions.forEach(entityProxy => {
-			// look up the real entity
-			const realEntity = this.instance.entities.get(entityProxy.nid)
+        let foo = false
 
-			if (realEntity && realEntity.collidable) {
-				const tempX = realEntity.x
-				const tempY = realEntity.y
+        setInterval(() => {
+            if (foo) {
+                this.instance.clients.forEach(client => {
+                    test.subscribe(client)
+                })
+                test.addMessage(new Notification('freshly subscribed'))
 
-				// rewind
-				realEntity.x = entityProxy.x
-				realEntity.y = entityProxy.y
+            } else {
+                test.addMessage(new Notification('about to unsubscribed'))
+                this.instance.clients.forEach(client => {
+                    test.unsubscribe(client)
+                })
 
-				const hit = CollisionSystem.checkLineCircle(x1, y1, x2, y2, realEntity.collider.circle)
+            }
 
-				// restore
-				realEntity.x = tempX
-				realEntity.y = tempY
+            foo = !foo
+        }, 3000)
 
-				if (hit) {
-					onHit(realEntity)
-				}
-			}
-		})
-	}
+        setTimeout(() => {
+            test.destroy()
+        }, 15000)
 
-	update(delta, tick, now) {
-		this.instance.emitCommands()
 
-		this.instance.clients.forEach(client => {
-			// move client view to follow the client's entity
-			// (client view is a rectangle used for culling network data)
-			client.view.x = client.rawEntity.x
-			client.view.y = client.rawEntity.y
+    }
 
-			// have the smooth entity follow the raw entity
-			const smoothEntity = client.smoothEntity
-			if (smoothEntity) {
-				const maximumMovementPerFrameInPixels = 410 * delta
-				followPath(smoothEntity, client.positions, maximumMovementPerFrameInPixels)
-			}
-		})
+    lagCompensatedHitscanCheck(x1, y1, x2, y2, timeAgo, onHit) {
+        const area = {
+            x: (x1 + x2) / 2,
+            y: (y1 + y2) / 2,
+            halfWidth: Math.abs(x2 - x1),
+            halfHeight: Math.abs(y2 - y1)
+        }
 
-		// when instance.updates, nengi sends out snapshots to every client
-		this.instance.update()
-	}
+        const compensatedEntityPositions = this.instance.historian.getLagCompensatedArea(timeAgo, area)
+        compensatedEntityPositions.forEach(entityProxy => {
+            // look up the real entity
+            const realEntity = this.instance.entities.get(entityProxy.nid)
+
+            if (realEntity && realEntity.collidable) {
+                const tempX = realEntity.x
+                const tempY = realEntity.y
+
+                // rewind
+                realEntity.x = entityProxy.x
+                realEntity.y = entityProxy.y
+
+                const hit = CollisionSystem.checkLineCircle(x1, y1, x2, y2, realEntity.collider.circle)
+
+                // restore
+                realEntity.x = tempX
+                realEntity.y = tempY
+
+                if (hit) {
+                    onHit(realEntity)
+                }
+            }
+        })
+    }
+
+    update(delta, tick, now) {
+        this.instance.emitCommands()
+
+        this.instance.clients.forEach(client => {
+            // move client view to follow the client's entity
+            // (client view is a rectangle used for culling network data)
+            client.view.x = client.rawEntity.x
+            client.view.y = client.rawEntity.y
+
+            // have the smooth entity follow the raw entity
+            const smoothEntity = client.smoothEntity
+            if (smoothEntity) {
+                const maximumMovementPerFrameInPixels = 410 * delta
+                followPath(smoothEntity, client.positions, maximumMovementPerFrameInPixels)
+            }
+        })
+
+        // when instance.updates, nengi sends out snapshots to every client
+        this.instance.update()
+    }
 }
 
 export default GameInstance
