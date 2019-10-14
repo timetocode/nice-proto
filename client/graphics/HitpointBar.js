@@ -23,4 +23,4 @@ class HitpointBar extends PIXI.Container {
 
 }
 
-export default HitpointBar;
+export default HitpointBar

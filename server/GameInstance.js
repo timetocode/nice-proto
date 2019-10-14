@@ -6,25 +6,23 @@ import WeaponFired from '../common/message/WeaponFired.js'
 import CollisionSystem from '../common/CollisionSystem.js'
 import followPath from './followPath.js'
 import damagePlayer from './damagePlayer.js'
-import niceInstanceExtension from './niceInstanceExtension.js'
+import instanceHookAPI from './instanceHookAPI.js'
 import applyCommand from '../common/applyCommand.js'
 import setupObstacles from './setupObstacles.js'
 import { fire } from '../common/weapon.js'
 import Notification from '../common/message/Notification'
+import lagCompensatedHitscanCheck from './lagCompensatedHitscanCheck'
 
 class GameInstance {
     constructor() {
-
         this.instance = new nengi.Instance(nengiConfig, { port: 8079 })
-        niceInstanceExtension(this.instance)
+        instanceHookAPI(this.instance)
 
         // game-related state
         this.obstacles = setupObstacles(this.instance)
         // (the rest is just attached to client objects when they connect)
 
         this.instance.on('connect', ({ client, callback }) => {
-            // PER player-related state, attached to clients
-
             // create a entity for this client
             const rawEntity = new PlayerCharacter()
 
@@ -52,16 +50,6 @@ class GameInstance {
             smoothEntity.client = client
             client.smoothEntity = smoothEntity
             client.positions = []
-
-            /*
-            // spread out players over a large area
-            const x = Math.random() * 10000
-            const y = Math.random() * 10000
-            rawEntity.x = x
-            rawEntity.y = y
-            smoothEntity.x = x
-            smoothEntity.y = y
-            */
 
             // define the view (the area of the game visible to this client, all else is culled)
             client.view = {
@@ -113,81 +101,15 @@ class GameInstance {
                 })
 
                 const timeAgo = client.latency + 100
+                const hits = lagCompensatedHitscanCheck(this.instance, rawEntity.x, rawEntity.y, endX, endY, timeAgo)
 
-                this.lagCompensatedHitscanCheck(rawEntity.x, rawEntity.y, endX, endY, timeAgo, (victim) => {
+                hits.forEach(victim => {
                     if (victim.nid !== rawEntity.nid && victim.nid !== smoothEntity.nid) {
                         damagePlayer(victim)
                     }
                 })
 
                 this.instance.addLocalMessage(new WeaponFired(smoothEntity.nid, smoothEntity.x, smoothEntity.y, command.x, command.y))
-            }
-        })
-
-
-        const test = this.instance.createChannel()
-
-        const te = new PlayerCharacter()
-        te.x = 40
-        test.addEntity(te)
-
-        let foo = false
-
-        setInterval(() => {
-            if (foo) {
-                this.instance.clients.forEach(client => {
-                    test.subscribe(client)
-                })
-                test.addMessage(new Notification('freshly subscribed'))
-
-            } else {
-                test.addMessage(new Notification('about to unsubscribed'))
-                this.instance.clients.forEach(client => {
-                    test.unsubscribe(client)
-                })
-
-            }
-
-            foo = !foo
-        }, 3000)
-
-        setTimeout(() => {
-            test.destroy()
-        }, 15000)
-
-
-    }
-
-    lagCompensatedHitscanCheck(x1, y1, x2, y2, timeAgo, onHit) {
-        const area = {
-            x: (x1 + x2) / 2,
-            y: (y1 + y2) / 2,
-            halfWidth: Math.abs(x2 - x1),
-            halfHeight: Math.abs(y2 - y1)
-        }
-
-        const compensatedEntityPositions = this.instance.historian.getLagCompensatedArea(timeAgo, area)
-        compensatedEntityPositions.forEach(entityProxy => {
-            // look up the real entity
-            const realEntity = this.instance.entities.get(entityProxy.nid)
-
-            if (realEntity && realEntity.collidable) {
-                const tempX = realEntity.x
-                const tempY = realEntity.y
-
-                // rewind
-                realEntity.x = entityProxy.x
-                realEntity.y = entityProxy.y
-
-                const hit = CollisionSystem.checkLineCircle(x1, y1, x2, y2, realEntity.collider.circle)
-
-                // restore
-                realEntity.x = tempX
-                realEntity.y = tempY
-
-                if (hit) {
-                    onHit(realEntity)
-                }
             }
         })
     }

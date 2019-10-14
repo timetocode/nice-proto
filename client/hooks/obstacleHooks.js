@@ -12,8 +12,8 @@ export default ({ obstacles, renderer }) => {
             return entity
         },
         delete({ nid, entity }) {
-			renderer.entities.delete(nid)
-			renderer.middleground.removeChild(entity)
+            renderer.entities.delete(nid)
+            renderer.middleground.removeChild(entity)
         }
     }
 }

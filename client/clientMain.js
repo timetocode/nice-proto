@@ -1,5 +1,5 @@
 
-import GameClient from './GameClient.js';
+import GameClient from './GameClient.js'
 
 window.onload = function() {
     console.log('window loaded')
@@ -8,8 +8,8 @@ window.onload = function() {
     let previous = performance.now()
     const loop = function() {
         window.requestAnimationFrame(loop)
-        let now = performance.now()
-        let delta = (now - previous) / 1000
+        const now = performance.now()
+        const delta = (now - previous) / 1000
         previous = now
         tick++
 
