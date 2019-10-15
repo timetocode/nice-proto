@@ -1,9 +1,9 @@
 
-import GameClient from './GameClient.js'
+import create from './game.js'
 
 window.onload = function() {
     console.log('window loaded')
-    const gameClient = new GameClient()
+    const update = create()
     let tick = 0
     let previous = performance.now()
     const loop = function() {
@@ -13,7 +13,7 @@ window.onload = function() {
         previous = now
         tick++
 
-        gameClient.update(delta, tick, now)
+        update(delta, tick, now)
     }
 
     loop()

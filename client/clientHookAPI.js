@@ -1,7 +1,7 @@
 export default (client, hooks) => {
     client.hooks = hooks
-    client.svEntities = new Map()
-    client.clEntities = new Map()
+    client.entities = new Map()
+    client.graphicalEntities = new Map()
 
     client.onConnect(res => {
         client.emit('connected', res)
@@ -55,26 +55,26 @@ export default (client, hooks) => {
         if (!constructor) {
             console.log(`No constructor found for ${name}`)
         }
-        const svEntity = new constructor(data)
-        Object.assign(svEntity, data)
-        client.svEntities.set(svEntity.nid, svEntity)
+        const entity = new constructor(data)
+        Object.assign(entity, data)
+        client.entities.set(entity.nid, entity)
 
         // construct the client entity (from hooks)
         if (client.hooks) {
             const hooks = client.hooks[name]
             if (hooks) {
-                const entity = hooks.create({ data, sim: svEntity })
-                Object.assign(entity, data)
-
-                if (hooks.watch) {
-                    data.protocol.keys.forEach(prop => {
-                        if (hooks.watch[prop]) {
-                            hooks.watch[prop]({ value: data[prop], entity })
-                        }
-                    })
+                const graphics = hooks.create({ data, entity })
+                if (graphics) {
+                    Object.assign(graphics, data)
+                    if (hooks.watch) {
+                        data.protocol.keys.forEach(prop => {
+                            if (hooks.watch[prop]) {
+                                hooks.watch[prop]({ value: data[prop], graphics, entity })
+                            }
+                        })
+                    }
+                    client.graphicalEntities.set(graphics.nid, graphics)
                 }
-
-                client.clEntities.set(entity.nid, entity)
             }
         }
     })
@@ -84,21 +84,21 @@ export default (client, hooks) => {
             //console.log('ignore', update)
             return
         }
-        const svEntity = client.svEntities.get(update.nid)
-        if (svEntity) {
-            svEntity[update.prop] = update.value
+        const entity = client.entities.get(update.nid)
+        if (entity) {
+            entity[update.prop] = update.value
         } else {
             console.log('tried to update a sim that did not exist')
         }
-        const clEntity = client.clEntities.get(update.nid)
-        if (clEntity) {
-            clEntity[update.prop] = update.value
+        const graphics = client.graphicalEntities.get(update.nid)
+        if (graphics) {
+            graphics[update.prop] = update.value
 
-            const name = clEntity.protocol.name
+            const name = graphics.protocol.name
             const hooks = client.hooks[name]
 
             if (hooks.watch && hooks.watch[update.prop]) {
-                hooks.watch[update.prop]({ id: update.id, value: update.value, entity: clEntity })
+                hooks.watch[update.prop]({ id: update.id, value: update.value, entity, graphics })
             }
 
         } else {
@@ -108,19 +108,20 @@ export default (client, hooks) => {
 
 
     client.on('delete', nid => {
-        const clEntity = client.clEntities.get(nid)
-        const name = clEntity.protocol.name
+        const entity = client.entities.get(nid)
+        const graphics = client.graphicalEntities.get(nid)
+        const name = graphics.protocol.name
         const hooks = client.hooks[name]
 
-        if (client.svEntities.has(nid)) {
-            client.svEntities.delete(nid)
+        if (client.entities.has(nid)) {
+            client.entities.delete(nid)
         } else {
             console.log('tried to delete an entity that did not exist')
         }
 
-        if (client.clEntities.has(nid)) {
-            client.clEntities.delete(nid)
-            hooks.delete({ nid, entity: clEntity })
+        if (client.graphicalEntities.has(nid)) {
+            client.graphicalEntities.delete(nid)
+            hooks.delete({ nid, entity, graphics })
         } else {
             console.log('tried to delete an entity that did not exist')
         }

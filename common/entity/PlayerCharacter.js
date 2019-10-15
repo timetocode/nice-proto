@@ -1,14 +1,11 @@
 import nengi from 'nengi'
 import CollisionSystem from '../CollisionSystem.js'
 
-const gfx = () => {}
-
 class PlayerCharacter {
     constructor() {
         // x & y are getters
         //this.x = 0
         //this.y = 0
-        this.graphics = gfx('PlayerCharacter')
         this.rotation = 0
         this.hitpoints = 100
         this.isAlive = true

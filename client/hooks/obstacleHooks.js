@@ -1,19 +1,19 @@
 import ObstacleGraphics from '../graphics/ObstacleGraphics.js'
 
-export default ({ obstacles, renderer }) => {
+export default ({ obstacles }, renderer) => {
     return {
-        create({ data, sim }) {
-            obstacles.set(data.nid, sim)
+        create({ data, entity }) {
+            obstacles.set(data.nid, entity)
 
-            const entity = new ObstacleGraphics(data)
-            renderer.entities.set(data.nid, entity)
-            renderer.middleground.addChild(entity)
+            const graphics = new ObstacleGraphics(data)
+            renderer.entities.set(data.nid, graphics)
+            renderer.middleground.addChild(graphics)
 
-            return entity
+            return graphics
         },
-        delete({ nid, entity }) {
+        delete({ nid, graphics }) {
             renderer.entities.delete(nid)
-            renderer.middleground.removeChild(entity)
+            renderer.middleground.removeChild(graphics)
         }
     }
 }

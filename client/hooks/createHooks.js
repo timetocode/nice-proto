@@ -1,11 +1,9 @@
 import obstacleHooks from './obstacleHooks.js'
 import playerHooks from './playerHooks.js'
 
-export default (simulator) => {
-    const { renderer, obstacles } = simulator
-    console.log('sim', simulator)
+export default (state, renderer) => {
     return {
-        'PlayerCharacter': playerHooks({ renderer, simulator }),
-        'Obstacle': obstacleHooks({ renderer, obstacles })
+        'PlayerCharacter': playerHooks(state, renderer),
+        'Obstacle': obstacleHooks(state, renderer)
     }
 }
