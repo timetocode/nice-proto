@@ -15,25 +15,41 @@ import lagCompensatedHitscanCheck from './lagCompensatedHitscanCheck'
 
 class GameInstance {
     constructor() {
+<<<<<<< HEAD
         this.instance = new nengi.Instance(nengiConfig, { port: 8079 })
         instanceHookAPI(this.instance)
+=======
+
+        this.instance = new nengi.Instance(nengiConfig, { port: 8079 })
+        niceInstanceExtension(this.instance)
+>>>>>>> master
 
         // game-related state
         this.obstacles = setupObstacles(this.instance)
         // (the rest is just attached to client objects when they connect)
 
         this.instance.on('connect', ({ client, callback }) => {
+<<<<<<< HEAD
+=======
+            // PER player-related state, attached to clients
+
+>>>>>>> master
             // create a entity for this client
             const rawEntity = new PlayerCharacter()
 
             // make the raw entity only visible to this client
             const channel = this.instance.createChannel()
             channel.subscribe(client)
+<<<<<<< HEAD
 
             this.instance.message(new Notification('yolo'), client)
             channel.addMessage(new Notification('private channel created'))
             channel.addEntity(rawEntity)
             this.instance.addEntity(rawEntity)
+=======
+            channel.addEntity(rawEntity)
+            //this.instance.addEntity(rawEntity)
+>>>>>>> master
             client.channel = channel
 
             // smooth entity is visible to everyone
@@ -55,8 +71,13 @@ class GameInstance {
             client.view = {
                 x: rawEntity.x,
                 y: rawEntity.y,
+<<<<<<< HEAD
                 halfWidth: 500,
                 halfHeight: 500
+=======
+                halfWidth: 99999,
+                halfHeight: 99999
+>>>>>>> master
             }
 
             // accept the connection
@@ -65,7 +86,10 @@ class GameInstance {
 
         this.instance.on('disconnect', client => {
             // clean up per client state
+<<<<<<< HEAD
             client.channel.removeEntity(client.rawEntity)
+=======
+>>>>>>> master
             this.instance.removeEntity(client.rawEntity)
             this.instance.removeEntity(client.smoothEntity)
             client.channel.destroy()
@@ -101,9 +125,14 @@ class GameInstance {
                 })
 
                 const timeAgo = client.latency + 100
+<<<<<<< HEAD
                 const hits = lagCompensatedHitscanCheck(this.instance, rawEntity.x, rawEntity.y, endX, endY, timeAgo)
 
                 hits.forEach(victim => {
+=======
+
+                this.lagCompensatedHitscanCheck(rawEntity.x, rawEntity.y, endX, endY, timeAgo, (victim) => {
+>>>>>>> master
                     if (victim.nid !== rawEntity.nid && victim.nid !== smoothEntity.nid) {
                         damagePlayer(victim)
                     }
@@ -114,6 +143,43 @@ class GameInstance {
         })
     }
 
+<<<<<<< HEAD
+=======
+    lagCompensatedHitscanCheck(x1, y1, x2, y2, timeAgo, onHit) {
+        const area = {
+            x: (x1 + x2) / 2,
+            y: (y1 + y2) / 2,
+            halfWidth: Math.abs(x2 - x1),
+            halfHeight: Math.abs(y2 - y1)
+        }
+
+        const compensatedEntityPositions = this.instance.historian.getLagCompensatedArea(timeAgo, area)
+        compensatedEntityPositions.forEach(entityProxy => {
+            // look up the real entity
+            const realEntity = this.instance.entities.get(entityProxy.nid)
+
+            if (realEntity && realEntity.collidable) {
+                const tempX = realEntity.x
+                const tempY = realEntity.y
+
+                // rewind
+                realEntity.x = entityProxy.x
+                realEntity.y = entityProxy.y
+
+                const hit = CollisionSystem.checkLineCircle(x1, y1, x2, y2, realEntity.collider.circle)
+
+                // restore
+                realEntity.x = tempX
+                realEntity.y = tempY
+
+                if (hit) {
+                    onHit(realEntity)
+                }
+            }
+        })
+    }
+
+>>>>>>> master
     update(delta, tick, now) {
         this.instance.emitCommands()
 
