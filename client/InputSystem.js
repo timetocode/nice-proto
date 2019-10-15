@@ -113,4 +113,4 @@ class InputSystem {
     }
 }
 
-export default InputSystem;
+export default InputSystem

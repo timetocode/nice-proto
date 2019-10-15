@@ -1,4 +1,4 @@
-import Obstacle from '../common/entity/Obstacle'
+import Obstacle from '../common/entity/Obstacle.js'
 
 // setup a few obstacles
 export default (instance) => {

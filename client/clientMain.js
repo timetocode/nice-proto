@@ -1,19 +1,19 @@
 
-import GameClient from './GameClient';
+import create from './game.js'
 
 window.onload = function() {
     console.log('window loaded')
-    const gameClient = new GameClient()
+    const update = create()
     let tick = 0
     let previous = performance.now()
     const loop = function() {
         window.requestAnimationFrame(loop)
-        let now = performance.now()
-        let delta = (now - previous) / 1000
+        const now = performance.now()
+        const delta = (now - previous) / 1000
         previous = now
         tick++
 
-        gameClient.update(delta, tick, now)
+        update(delta, tick, now)
     }
 
     loop()

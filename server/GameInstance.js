@@ -1,37 +1,55 @@
 import nengi from 'nengi'
-import nengiConfig from '../common/nengiConfig'
-import PlayerCharacter from '../common/entity/PlayerCharacter'
-import Identity from '../common/message/Identity'
-import WeaponFired from '../common/message/WeaponFired'
-import CollisionSystem from '../common/CollisionSystem'
-import followPath from './followPath'
-import damagePlayer from './damagePlayer'
-import niceInstanceExtension from './niceInstanceExtension'
-import applyCommand from '../common/applyCommand'
-import setupObstacles from './setupObstacles'
-import { fire } from '../common/weapon'
+import nengiConfig from '../common/nengiConfig.js'
+import PlayerCharacter from '../common/entity/PlayerCharacter.js'
+import Identity from '../common/message/Identity.js'
+import WeaponFired from '../common/message/WeaponFired.js'
+import CollisionSystem from '../common/CollisionSystem.js'
+import followPath from './followPath.js'
+import damagePlayer from './damagePlayer.js'
+import instanceHookAPI from './instanceHookAPI.js'
+import applyCommand from '../common/applyCommand.js'
+import setupObstacles from './setupObstacles.js'
+import { fire } from '../common/weapon.js'
+import Notification from '../common/message/Notification'
+import lagCompensatedHitscanCheck from './lagCompensatedHitscanCheck'
 
 class GameInstance {
     constructor() {
+<<<<<<< HEAD
+        this.instance = new nengi.Instance(nengiConfig, { port: 8079 })
+        instanceHookAPI(this.instance)
+=======
 
         this.instance = new nengi.Instance(nengiConfig, { port: 8079 })
         niceInstanceExtension(this.instance)
+>>>>>>> master
 
         // game-related state
         this.obstacles = setupObstacles(this.instance)
         // (the rest is just attached to client objects when they connect)
 
         this.instance.on('connect', ({ client, callback }) => {
+<<<<<<< HEAD
+=======
             // PER player-related state, attached to clients
 
+>>>>>>> master
             // create a entity for this client
             const rawEntity = new PlayerCharacter()
 
             // make the raw entity only visible to this client
             const channel = this.instance.createChannel()
             channel.subscribe(client)
+<<<<<<< HEAD
+
+            this.instance.message(new Notification('yolo'), client)
+            channel.addMessage(new Notification('private channel created'))
+            channel.addEntity(rawEntity)
+            this.instance.addEntity(rawEntity)
+=======
             channel.addEntity(rawEntity)
             //this.instance.addEntity(rawEntity)
+>>>>>>> master
             client.channel = channel
 
             // smooth entity is visible to everyone
@@ -53,8 +71,13 @@ class GameInstance {
             client.view = {
                 x: rawEntity.x,
                 y: rawEntity.y,
+<<<<<<< HEAD
+                halfWidth: 500,
+                halfHeight: 500
+=======
                 halfWidth: 99999,
                 halfHeight: 99999
+>>>>>>> master
             }
 
             // accept the connection
@@ -63,6 +86,10 @@ class GameInstance {
 
         this.instance.on('disconnect', client => {
             // clean up per client state
+<<<<<<< HEAD
+            client.channel.removeEntity(client.rawEntity)
+=======
+>>>>>>> master
             this.instance.removeEntity(client.rawEntity)
             this.instance.removeEntity(client.smoothEntity)
             client.channel.destroy()
@@ -98,8 +125,14 @@ class GameInstance {
                 })
 
                 const timeAgo = client.latency + 100
+<<<<<<< HEAD
+                const hits = lagCompensatedHitscanCheck(this.instance, rawEntity.x, rawEntity.y, endX, endY, timeAgo)
+
+                hits.forEach(victim => {
+=======
 
                 this.lagCompensatedHitscanCheck(rawEntity.x, rawEntity.y, endX, endY, timeAgo, (victim) => {
+>>>>>>> master
                     if (victim.nid !== rawEntity.nid && victim.nid !== smoothEntity.nid) {
                         damagePlayer(victim)
                     }
@@ -110,6 +143,8 @@ class GameInstance {
         })
     }
 
+<<<<<<< HEAD
+=======
     lagCompensatedHitscanCheck(x1, y1, x2, y2, timeAgo, onHit) {
         const area = {
             x: (x1 + x2) / 2,
@@ -144,6 +179,7 @@ class GameInstance {
         })
     }
 
+>>>>>>> master
     update(delta, tick, now) {
         this.instance.emitCommands()
 

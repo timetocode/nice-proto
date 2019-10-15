@@ -1,12 +1,12 @@
-import CollisionSystem from './CollisionSystem'
-import { update as updateWeapon } from './weapon' 
+import CollisionSystem from './CollisionSystem.js'
+import { update as updateWeapon } from './weapon.js'
 
 export default (entity, command, obstacles) => {
     if (!entity.isAlive) {
         return
     }
 
-    // rotation (not impornt to movement, purely aesthetic)
+    // rotation (not important to movement, purely aesthetic)
     entity.rotation = command.rotation
 
     // movement logic
@@ -19,7 +19,7 @@ export default (entity, command, obstacles) => {
     if (command.left) { unitX -= 1 }
     if (command.right) { unitX += 1 }
 
-    // normalize      
+    // normalize
     const len = Math.sqrt(unitX * unitX + unitY * unitY)
     if (len > 0) {
         unitX = unitX / len
@@ -33,5 +33,5 @@ export default (entity, command, obstacles) => {
     CollisionSystem.moveWithCollisions(entity, obstacles)
 
     // advances the weapon-related timer(s)
-    updateWeapon(entity, command.delta)    
+    updateWeapon(entity, command.delta)
 }

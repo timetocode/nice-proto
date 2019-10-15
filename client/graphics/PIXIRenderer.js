@@ -1,11 +1,9 @@
 import * as PIXI from 'pixi.js'
-import BackgroundGrid from './BackgroundGrid'
+import BackgroundGrid from './BackgroundGrid.js'
 
 class PIXIRenderer {
     constructor() {
         this.canvas = document.getElementById('main-canvas')
-
-        this.masterScale = 1
         this.entities = new Map()
 
         this.renderer = PIXI.autoDetectRenderer({
@@ -39,22 +37,6 @@ class PIXIRenderer {
 
     resize() {
         this.renderer.resize(window.innerWidth, window.innerHeight)
-    }
-
-    drawHitscan(x, y, targetX, targetY, color) {
-        const graphics = new PIXI.Graphics()
-        graphics.lineStyle(1, color)
-        graphics.moveTo(x, y)
-        graphics.lineTo(targetX, targetY)
-        this.middleground.addChild(graphics)
-        setTimeout(() => {
-            this.middleground.removeChild(graphics)
-            graphics.destroy({
-                children: true,
-                texture: true,
-                baseTexture: true
-            })
-        }, 64)
     }
  
     centerCamera(entity) {

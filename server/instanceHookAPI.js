@@ -1,5 +1,4 @@
 export default (instance) => {
-
     instance.onConnect((client, data, callback) => {
         instance.emit('connect', { client, data, callback })
     })
