@@ -1,5 +1,3 @@
-
-
 const damagePlayer = (victim, amount) => {
     //console.log('damage!', victim.nid, victim.isAlive, victim.hitpoints)
     if (victim.isAlive) {
