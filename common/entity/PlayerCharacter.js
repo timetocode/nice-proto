@@ -1,5 +1,5 @@
 import nengi from 'nengi'
-import CollisionSystem from '../CollisionSystem.js'
+import { createCircleCollider }from '../collisionSystem.js'
 
 class PlayerCharacter {
     constructor() {
@@ -21,7 +21,7 @@ class PlayerCharacter {
 
         // collider!
         // example of a component that involves fancy stuff from another libary
-        this.collider = CollisionSystem.createCircleCollider(0, 0, 25)
+        this.collider = createCircleCollider(0, 0, 25)
     }
 
     get x() {

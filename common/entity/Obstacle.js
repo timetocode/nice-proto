@@ -1,5 +1,5 @@
 import nengi from 'nengi'
-import CollisionSystem from '../CollisionSystem.js'
+import { createRectangleCollider } from '../collisionSystem.js'
 
 class Obstacle {
     constructor(state) {
@@ -8,7 +8,8 @@ class Obstacle {
         this.y = state.y
         this.width = state.width
         this.height = state.height
-        this.collider = CollisionSystem.createRectangleCollider(state.x, state.y, state.width, state.height)    }
+        this.collider = createRectangleCollider(state.x, state.y, state.width, state.height)
+    }
 }
 
 Obstacle.protocol = {

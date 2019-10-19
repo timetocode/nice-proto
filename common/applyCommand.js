@@ -1,4 +1,4 @@
-import CollisionSystem from './CollisionSystem.js'
+import { moveWithCollisions } from './collisionSystem.js'
 
 export default (entity, command, obstacles) => {
     if (!entity.isAlive) {
@@ -13,8 +13,8 @@ export default (entity, command, obstacles) => {
     let unitY = 0
 
     // create forces from input
-    if (command.forward) { unitY -= 1 }
-    if (command.backward) { unitY += 1 }
+    if (command.up) { unitY -= 1 }
+    if (command.down) { unitY += 1 }
     if (command.left) { unitX -= 1 }
     if (command.right) { unitX += 1 }
 
@@ -29,5 +29,5 @@ export default (entity, command, obstacles) => {
     entity.y += unitY * entity.speed * command.delta
 
     // readjusts this entities position by uncolliding it from obstacles
-    CollisionSystem.moveWithCollisions(entity, obstacles)
+    moveWithCollisions(entity, obstacles)
 }

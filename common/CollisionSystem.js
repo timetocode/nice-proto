@@ -1,5 +1,8 @@
 import SAT from 'sat'
 
+// a recycled response object
+const response = new SAT.Response()
+
 const lineLine = (x1, y1, x2, y2, x3, y3, x4, y4) => {
     const axd = x2 - x1
     const ayd = y2 - y1
@@ -25,15 +28,7 @@ const distanceSquared = (x, y) => {
     return x * x + y * y
 }
 
-const response = new SAT.Response()
-
-class CollisionSystem {
-    constructor() {
-
-    }
-}
-
-CollisionSystem.createCircleCollider = (x, y, radius) => {
+const createCircleCollider = (x, y, radius) => {
     return {
         baseType: 'sat-circle',
         circle: new SAT.Circle(new SAT.Vector(x, y), radius),
@@ -54,7 +49,7 @@ CollisionSystem.createCircleCollider = (x, y, radius) => {
     }
 }
 
-CollisionSystem.createRectangleCollider = (x, y, width, height) => {
+const createRectangleCollider = (x, y, width, height) => {
     return {
         baseType: 'sat-polygon',
         polygon: new SAT.Box(new SAT.Vector(x, y), width, height).toPolygon(),
@@ -76,7 +71,7 @@ CollisionSystem.createRectangleCollider = (x, y, width, height) => {
     }
 }
 
-CollisionSystem.moveWithCollisions = (entity, obstacles) => {
+const moveWithCollisions = (entity, obstacles) => {
     obstacles.forEach(obstacle => {
         if (SAT.testCirclePolygon(entity.collider.circle, obstacle.collider.polygon, response)) {
             //console.log('res', response)
@@ -88,11 +83,11 @@ CollisionSystem.moveWithCollisions = (entity, obstacles) => {
 }
 
 
-CollisionSystem.checkCirclePolygon = (circleCollider, polygonCollider, response) => {
+const checkCirclePolygon = (circleCollider, polygonCollider, response) => {
     return SAT.testCirclePolygon(circleCollider, polygonCollider, response)
 }
 
-CollisionSystem.checkLineCircle = (x1, y1, x2, y2, circleCollider) => {
+const checkLineCircle = (x1, y1, x2, y2, circleCollider) => {
     const line = new SAT.Polygon(new SAT.Vector(), [
         new SAT.Vector(x1, y1),
         new SAT.Vector(x2, y2)
@@ -103,7 +98,7 @@ CollisionSystem.checkLineCircle = (x1, y1, x2, y2, circleCollider) => {
 // not SAT!
 // returns false or { x, y } of the first intersection point w/ the polygon
 // if pierce is true returns an array of [{ x, y}, etc] of all intersections
-CollisionSystem.checkLinePolygon = (x1, y1, x2, y2, polygonCollider, pierce = false) => {
+const checkLinePolygon = (x1, y1, x2, y2, polygonCollider, pierce = false) => {
     const intersections = []
     for (let i = 0; i < polygonCollider.points.length; i++) {
         const nextIndex = (i + 1 >= polygonCollider.points.length) ? 0 : i + 1
@@ -142,4 +137,11 @@ CollisionSystem.checkLinePolygon = (x1, y1, x2, y2, polygonCollider, pierce = fa
     }
 }
 
-export default CollisionSystem
+export {
+    createCircleCollider,
+    createRectangleCollider,
+    moveWithCollisions,
+    checkCirclePolygon,
+    checkLineCircle,
+    checkLinePolygon
+}
