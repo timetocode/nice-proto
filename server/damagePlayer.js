@@ -1,7 +1,7 @@
 const damagePlayer = (victim, amount) => {
     //console.log('damage!', victim.nid, victim.isAlive, victim.hitpoints)
     if (victim.isAlive) {
-        victim.hitpoints -= 25
+        victim.hitpoints -= amount
         // copy damage to the rawEntity
         victim.client.rawEntity.hitpoints = victim.hitpoints
     }

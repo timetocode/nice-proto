@@ -2,7 +2,6 @@ import applyCommand from '../common/applyCommand.js'
 
 export default (predictionErrorFrame, client, entity, obstacles) => {
     predictionErrorFrame.entities.forEach(predictionErrorEntity => {
-<<<<<<< HEAD
         const name = entity.protocol.name
 
         // rewind state for frame that was incorrect
@@ -16,15 +15,6 @@ export default (predictionErrorFrame, client, entity, obstacles) => {
 
         // TODO: clientHook api should fire hook if any of the properties are changed here
 
-=======
-
-        // move the entity back to the server side position
-        predictionErrorEntity.errors.forEach(predictionError => {
-            //console.log('prediciton error', predictionError)
-            entity[predictionError.prop] = predictionError.actualValue
-        })
-
->>>>>>> master
         // and then re-apply any commands issued since the frame that had the prediction error
         const commandSets = client.getUnconfirmedCommands() // client knows which commands need redone
         commandSets.forEach((commandSet, clientTick) => {
@@ -35,12 +25,8 @@ export default (predictionErrorFrame, client, entity, obstacles) => {
                     const prediction = {
                         nid: entity.nid,
                         x: entity.x,
-<<<<<<< HEAD
                         y: entity.y,
                         protocol: entity.protocol
-=======
-                        y: entity.y
->>>>>>> master
                     }
                     // these reconciled positions are now our new predictions, going forward
                     client.addCustomPrediction(clientTick, prediction, ['x', 'y']) 
@@ -48,8 +34,4 @@ export default (predictionErrorFrame, client, entity, obstacles) => {
             })
         })
     })
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> master

@@ -13,7 +13,7 @@ class ObstacleGraphics extends PIXI.Container {
         this.body.beginFill(0xffffff)
         this.body.drawRect(0, 0, state.width, state.height)
         this.body.endFill()
-        this.body.tint = 0xff0000    
+        this.body.tint = 0xff0000
         this.addChild(this.body)
     }
 

@@ -114,7 +114,7 @@ class Simulator {
 
             // make the camera look at our entity
             this.renderer.centerCamera(entity)
-            /* end movement */        
+            /* end movement */
 
             /* shooting */
             if (input.mouseDown) {

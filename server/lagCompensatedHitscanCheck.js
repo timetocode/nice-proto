@@ -4,10 +4,10 @@ const lagCompensatedHitscanCheck = (instance, x1, y1, x2, y2, timeAgo) => {
     const hits = []
 
     const area = {
-        x: (x1 + x2) / 2,
-        y: (y1 + y2) / 2,
-        halfWidth: Math.abs(x2 - x1),
-        halfHeight: Math.abs(y2 - y1)
+        x: ((x1 + x2) / 2) - 30,
+        y: ((y1 + y2) / 2) - 30,
+        halfWidth: Math.abs(x2 - x1) + 30,
+        halfHeight: Math.abs(y2 - y1) + 30
     }
 
     const compensatedEntityPositions = instance.historian.getLagCompensatedArea(timeAgo, area)

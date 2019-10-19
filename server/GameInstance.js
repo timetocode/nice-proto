@@ -105,7 +105,7 @@ class GameInstance {
 
                 hits.forEach(victim => {
                     if (victim.nid !== rawEntity.nid && victim.nid !== smoothEntity.nid) {
-                        damagePlayer(victim)
+                        damagePlayer(victim, 25)
                     }
                 })
 
