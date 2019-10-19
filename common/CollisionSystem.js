@@ -1,7 +1,6 @@
 import SAT from 'sat'
 
 const lineLine = (x1, y1, x2, y2, x3, y3, x4, y4) => {
-    //console.log('yo', x1, y1, x2, y2, x3, y3, x4, y4) 
     const axd = x2 - x1
     const ayd = y2 - y1
     const bxd = x4 - x3

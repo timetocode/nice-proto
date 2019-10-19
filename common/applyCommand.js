@@ -1,5 +1,4 @@
 import CollisionSystem from './CollisionSystem.js'
-import { update as updateWeapon } from './weapon.js'
 
 export default (entity, command, obstacles) => {
     if (!entity.isAlive) {
@@ -31,7 +30,4 @@ export default (entity, command, obstacles) => {
 
     // readjusts this entities position by uncolliding it from obstacles
     CollisionSystem.moveWithCollisions(entity, obstacles)
-
-    // advances the weapon-related timer(s)
-    updateWeapon(entity, command.delta)
 }

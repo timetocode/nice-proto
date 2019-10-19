@@ -80,7 +80,7 @@ export default (client, hooks) => {
     })
 
     client.on('update', update => {
-        if (client.entityUpdateFilter(update)) {
+        if (client.entityUpdateFilter && client.entityUpdateFilter(update)) {
             //console.log('ignore', update)
             return
         }

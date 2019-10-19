@@ -3,6 +3,12 @@ import BackgroundGrid from './BackgroundGrid.js'
 
 class PIXIRenderer {
     constructor() {
+        // can't create the actual pixi renderer here, because
+        // this constructor is called before the window has loaded
+        // so we call init() instead, after the window loads
+    }
+
+    init() {
         this.canvas = document.getElementById('main-canvas')
         this.entities = new Map()
 
@@ -42,16 +48,6 @@ class PIXIRenderer {
     centerCamera(entity) {
         this.camera.x = -entity.x + 0.5 * window.innerWidth
         this.camera.y = -entity.y + 0.5 * window.innerHeight
-    }
-
-    followSmoothlyWithCamera(entity, delta) {
-        const cameraSpeed = 5
-        const targetX = -entity.x + 0.5 * window.innerWidth
-        const targetY = -entity.y + 0.5 * window.innerHeight
-        const dx = targetX - this.camera.x
-        const dy = targetY - this.camera.y
-        this.camera.x += dx * cameraSpeed * delta
-        this.camera.y += dy * cameraSpeed * delta
     }
 
     toWorldCoordinates(mouseX, mouseY) {

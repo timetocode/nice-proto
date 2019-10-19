@@ -1,9 +1,11 @@
 
-import create from './game.js'
+import { update, renderer } from './game.js'
 
 window.onload = function() {
     console.log('window loaded')
-    const update = create()
+
+    renderer.init()
+    //const update = create()
     let tick = 0
     let previous = performance.now()
     const loop = function() {
