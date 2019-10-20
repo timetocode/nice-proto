@@ -57,7 +57,7 @@ document.addEventListener('keydown', event => {
 })
 
 document.addEventListener('keyup', event => {
-    //console.log('keyup', event)
+    // console.log('keyup', event)
     if (event.keyCode === 87 || event.keyCode === 38) {
         currentState.up = false
     }

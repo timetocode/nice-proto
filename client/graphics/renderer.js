@@ -1,13 +1,13 @@
-import * as PIXI from 'pixi.js'
+import { autoDetectRenderer, Container } from 'pixi.js'
 import BackgroundGrid from './BackgroundGrid.js'
 
 let renderer = null
 
-const stage = new PIXI.Container()
-const camera = new PIXI.Container()
-const background = new PIXI.Container()
-const middleground = new PIXI.Container()
-const foreground = new PIXI.Container()
+const stage = new Container()
+const camera = new Container()
+const background = new Container()
+const middleground = new Container()
+const foreground = new Container()
 
 camera.addChild(background)
 camera.addChild(middleground)
@@ -41,7 +41,7 @@ const update = (delta) => {
 const init = () => {
     const canvas = document.getElementById('main-canvas')
 
-    renderer = PIXI.autoDetectRenderer({
+    renderer = autoDetectRenderer({
         width: window.innerWidth, 
         height: window.innerHeight, 
         view: canvas,
