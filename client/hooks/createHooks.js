@@ -1,7 +1,7 @@
 import playerHooks from './playerHooks.js'
 
-export default (state, renderer) => {
+export default (state) => {
     return {
-        'PlayerCharacter': playerHooks(state, renderer)
+        'PlayerCharacter': playerHooks(state)
     }
 }

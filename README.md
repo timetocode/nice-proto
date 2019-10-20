@@ -1,3 +1,3 @@
-# nice-proto
-protoyping an easier to use api that consumes the existing nengi api
+# bare
+a bare version of a nengi-hook integrated game template
 ```

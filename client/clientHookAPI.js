@@ -1,8 +1,10 @@
 export default (client, hooks) => {
+    // additions to nengi client object
     client.hooks = hooks
     client.entities = new Map()
     client.graphicalEntities = new Map()
 
+    // upgrade to being emitted events
     client.onConnect(res => {
         client.emit('connected', res)
     })
@@ -11,6 +13,7 @@ export default (client, hooks) => {
         client.emit('disconnected')
     })
 
+    // turn all network data into events
     client.readNetworkAndEmit = () => {
         const network = client.readNetwork()
 
@@ -48,6 +51,7 @@ export default (client, hooks) => {
         constructors[ep[0]] = ep[1]
     })
 
+    // create entities and invoke their hooks
     client.on('create', data => {
         // construct the entity (nengiConfig constructor)
         const name = data.protocol.name
@@ -79,6 +83,7 @@ export default (client, hooks) => {
         }
     })
 
+    // update entities and invoke their hooks
     client.on('update', update => {
         if (client.entityUpdateFilter && client.entityUpdateFilter(update)) {
             //console.log('ignore', update)
@@ -107,6 +112,7 @@ export default (client, hooks) => {
     })
 
 
+    // delete entities and invoke their hooks
     client.on('delete', nid => {
         const entity = client.entities.get(nid)
         const graphics = client.graphicalEntities.get(nid)

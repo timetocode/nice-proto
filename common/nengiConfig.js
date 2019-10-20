@@ -1,8 +1,4 @@
 import nengi from 'nengi'
-import PlayerCharacter from './entity/PlayerCharacter.js'
-import Identity from './message/Identity.js'
-import Notification from './message/Notification.js'
-import MoveCommand from './command/MoveCommand.js'
 
 const config = {
     UPDATE_RATE: 20, 
@@ -17,17 +13,10 @@ const config = {
     HISTORIAN_TICKS: 40,
 
     protocols: {
-        entities: [
-            ['PlayerCharacter', PlayerCharacter],
-        ],
+        entities: [],
         localMessages: [],
-        messages: [
-            ['Identity', Identity],
-            ['Notification', Notification]
-        ],
-        commands: [
-            ['MoveCommand', MoveCommand]
-        ],
+        messages: [],
+        commands: [],
         basics: []
     }
 }

@@ -1,22 +1,9 @@
-import PlayerGraphics from '../graphics/PlayerGraphics.js'
-
-export default (state, renderer ) => {
+export default (state) => {
     return {
         create({ data, entity }) {
-            const graphics = new PlayerGraphics(data)
-            renderer.middleground.addChild(graphics)
-            renderer.entities.set(graphics.nid, graphics)
-
-            /* self, raw */
-            if (data.nid === state.myRawId) {
-                state.myRawEntity = entity
-            }
-
-            return graphics
+            return null
         },
         delete({ nid, graphics }) {
-            renderer.entities.delete(nid)
-            renderer.middleground.removeChild(graphics)
         },
         watch: {
         }

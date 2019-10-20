@@ -1,30 +1,16 @@
 import nengi from 'nengi'
 import nengiConfig from '../common/nengiConfig.js'
-import PIXIRenderer from './graphics/PIXIRenderer.js'
 import clientHookAPI from './clientHookAPI.js'
 import createHooks from './hooks/createHooks.js'
-import handleInput from './handleInput.js'
+import renderer from './graphics/renderer'
 
 const client = new nengi.Client(nengiConfig, 100)
-const renderer = new PIXIRenderer()
 
 const state = {
-    myRawId: null,
-    obstacles: new Map()
+    // client-side game state can live in here
 }
 
-clientHookAPI( // API EXTENSION
-    client,
-    createHooks(state, renderer)
-)
-
-client.on('message::Identity', message => {
-    state.myRawId = message.rawId
-})
-
-client.on('message::Notification', message => {
-    console.log('Notification', message)
-})
+clientHookAPI(client, createHooks(state))
 
 client.on('connected', res => { console.log('connection?:', res) })
 client.on('disconnected', () => { console.log('connection closed') })
@@ -33,12 +19,11 @@ client.connect('ws://localhost:8079')
 
 const update = (delta, tick, now) => {
     client.readNetworkAndEmit()
-    handleInput(state, client, renderer, delta)
     renderer.update(delta)
     client.update()
 }
 
 export {
     update,
-    renderer
+    state
 }

@@ -1,5 +1,5 @@
 import nengiConfig from '../common/nengiConfig.js'
-import update from './update'
+import { update } from './gameServer.js'
 
 const hrtimeMs = function() {
     const time = process.hrtime()
@@ -20,7 +20,7 @@ const loop = function() {
         //const start = hrtimeMs() // uncomment to benchmark
         update(delta, tick, Date.now())
         //const stop = hrtimeMs()
-        //console.log('game update took', stop-start, 'ms')
+        //console.log('update took', stop-start, 'ms')
     }
 
     if (hrtimeMs() - previous < tickLengthMs - 4) {
