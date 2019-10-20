@@ -1,9 +1,9 @@
 {
   "name": "nengi-2d-demo",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "nengi 2d example game with client-side prediction and lag compensation",
   "scripts": {
-    "start": "npx concurrently \"npx webpack-dev-server --config webpack.dev.js\" \"npx nodemon --inspect ./server/index.js --ignore public --ignore bot/\"",
+    "start": "npx concurrently \"npx webpack-dev-server --config webpack.dev.js\" \"npx nodemon ./server/index.js --ignore public --ignore bot/\"",
     "build": "npx webpack --config webpack.prod.js"
   },
   "author": "timetocode // Alex",
@@ -11,14 +11,13 @@
   "dependencies": {
     "esm": "^3.2.25",
     "nengi": "^1.9.0",
-    "pixi.js": "^5.1.5",
-    "sat": "^0.7.1"
+    "pixi.js": "^5.1.5"
   },
   "devDependencies": {
     "concurrently": "^4.1.2",
-    "nodemon": "^1.19.3",
+    "nodemon": "^1.19.4",
     "terser-webpack-plugin": "^1.4.1",
-    "webpack": "^4.41.1",
+    "webpack": "^4.41.2",
     "webpack-cli": "^3.3.9",
     "webpack-dev-server": "^3.8.2",
     "webpack-merge": "^4.2.2"

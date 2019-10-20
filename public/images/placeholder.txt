@@ -1,1 +1,1 @@
-so that git creates the images directoy
+public/images
