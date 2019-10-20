@@ -10,13 +10,6 @@ export default (state, renderer ) => {
             /* self, raw */
             if (data.nid === state.myRawId) {
                 state.myRawEntity = entity
-                graphics.body.tint = 0xffffff // debug: turn self white
-            }
-
-            /* self, smooth */
-            if (data.nid === state.mySmoothId) {
-                state.mySmoothEntity = entity
-                graphics.hide() // hide our second entity
             }
 
             return graphics
@@ -26,9 +19,6 @@ export default (state, renderer ) => {
             renderer.middleground.removeChild(graphics)
         },
         watch: {
-            hitpoints({ graphics, value }) {
-                graphics.hitpointBar.setHitpointPercentage(value / 100)
-            }
         }
     }
 }

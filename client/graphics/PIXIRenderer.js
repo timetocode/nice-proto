@@ -12,6 +12,8 @@ class PIXIRenderer {
         this.canvas = document.getElementById('main-canvas')
         this.entities = new Map()
 
+        PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST
+
         this.renderer = PIXI.autoDetectRenderer({
             width: window.innerWidth, 
             height: window.innerHeight, 
@@ -58,10 +60,6 @@ class PIXIRenderer {
     }
 
     update(delta) {
-        this.entities.forEach(entity => {
-            entity.update(delta)
-        })
-
         this.renderer.render(this.stage)
     }
 }

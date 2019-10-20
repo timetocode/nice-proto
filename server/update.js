@@ -4,14 +4,10 @@ import PlayerCharacter from '../common/entity/PlayerCharacter.js'
 import Identity from '../common/message/Identity.js'
 import instanceHookAPI from './instanceHookAPI.js'
 import applyCommand from '../common/applyCommand.js'
-import setupObstacles from './setupObstacles.js'
+
 
 const instance = new nengi.Instance(nengiConfig, { port: 8079 })
 instanceHookAPI(instance)
-
-// game-related state
-const obstacles = setupObstacles(instance)
-// (the rest is just attached to client objects when they connect)
 
 instance.on('connect', ({ client, callback }) => {
     // create a entity for this client
@@ -45,7 +41,7 @@ instance.on('disconnect', client => {
 instance.on('command::MoveCommand', ({ command, client, tick }) => {
     // move this client's entity
     const rawEntity = client.rawEntity
-    applyCommand(rawEntity, command, obstacles)
+    applyCommand(rawEntity, command, [])
 })
 
 
